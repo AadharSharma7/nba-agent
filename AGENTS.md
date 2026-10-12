@@ -9,6 +9,10 @@ architecture, supported features, and data policy.
 
 - Backend code, tests and Python configuration live in `backend/`; UI code belongs
   in `frontend/`. Raw data and audits remain at the repository root.
+- The frontend uses browser-native JavaScript and CSS served by FastAPI at `/`.
+  Keep the UI and API on the same local origin. No frontend build is required.
+  Render only user-visible conversation messages; never render retrieved text as
+  HTML or expose API keys to the browser.
 - Use the existing Python 3.12 repository-root `.venv` and its executables. Do not install project
   dependencies globally. If the environment is missing, follow the README setup.
 - Keep the local prototype simple: FastAPI, PydanticAI, PostgreSQL, and one backend
@@ -71,6 +75,9 @@ the initialized local PostgreSQL database:
 ```bash
 NBA_TEST_DATABASE=1 .venv/bin/pytest -c backend/pyproject.toml -q
 ```
+
+Frontend checks use `node --test frontend/tests/*.test.js` and
+`node --check frontend/assets/app.js`. Node is only needed for development checks.
 
 The test suite blocks paid model requests. Integration tests read NBA statistics
 and write synthetic conversation logs. `backend/evals/run_live.py` is a separate, paid

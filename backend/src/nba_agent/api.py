@@ -4,11 +4,12 @@ from uuid import UUID
 from fastapi import FastAPI, HTTPException, Query
 from psycopg import Error as DatabaseError
 from starlette.middleware.trustedhost import TrustedHostMiddleware
-from starlette.responses import JSONResponse
+from starlette.responses import FileResponse, JSONResponse
+from starlette.staticfiles import StaticFiles
 
-from nba_agent.config import Settings
+from nba_agent.config import REPOSITORY_ROOT, Settings
 from nba_agent.database import make_pool, read_connection
-from nba_agent.domain import ChatRequest, ChatResponse, ModelMetricsPage, StatsQuery
+from nba_agent.domain import ChatRequest, ChatResponse, ModelMetricsPage, SessionsPage, StatsQuery
 from nba_agent.queries import search_nba_data
 from nba_agent.service import ChatService, MissingAPIKey, UnknownSession
 
@@ -77,6 +78,32 @@ def create_app(settings: Settings | None = None, agents=None) -> FastAPI:
         except UnknownSession:
             raise HTTPException(404, "Session not found.") from None
 
+    @app.get("/v1/sessions", response_model=SessionsPage)
+    async def list_sessions(
+        limit: int = Query(default=30, ge=1, le=100),
+        offset: int = Query(default=0, ge=0),
+        q: str = Query(default="", max_length=100),
+    ) -> SessionsPage:
+        async with read_connection(app.state.pool) as conn:
+            cur = await conn.execute(
+                """SELECT s.id, left(first_message.title,120) AS title, s.created_at,
+                COALESCE(s.last_activity_at,s.created_at) AS last_activity_at
+                FROM session_details s
+                JOIN LATERAL (
+                    SELECT content->>'message' AS title FROM message_details
+                    WHERE session_id=s.id AND role='user' AND user_visible
+                    ORDER BY sequence_number LIMIT 1
+                ) first_message ON true
+                WHERE strpos(lower(first_message.title),lower(%s)) > 0
+                ORDER BY COALESCE(s.last_activity_at,s.created_at) DESC,s.id DESC
+                LIMIT %s OFFSET %s""",
+                (q.strip(), limit + 1, offset),
+            )
+            rows = await cur.fetchall()
+        return SessionsPage(
+            sessions=rows[:limit], next_offset=offset + limit if len(rows) > limit else None
+        )
+
     @app.get("/v1/sessions/{session_id}")
     async def session_details(
         session_id: UUID,
@@ -123,6 +150,22 @@ def create_app(settings: Settings | None = None, agents=None) -> FastAPI:
             session_id=session_id,
             metrics=rows[:limit],
             next_offset=offset + limit if len(rows) > limit else None,
+        )
+
+    frontend = REPOSITORY_ROOT / "frontend"
+    app.mount("/assets", StaticFiles(directory=frontend / "assets"), name="frontend-assets")
+
+    @app.get("/", include_in_schema=False)
+    async def frontend_index():
+        return FileResponse(
+            frontend / "index.html",
+            headers={
+                "Cache-Control": "no-cache",
+                "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; "
+                "img-src 'self' data:; connect-src 'self'; object-src 'none'; "
+                "base-uri 'self'; frame-ancestors 'none'",
+                "X-Content-Type-Options": "nosniff",
+            },
         )
 
     return app

@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f8f7f4" />
+    <meta
+      name="description"
+      content="Explore historical NBA player statistics with answers grounded in the data."
+    />
+    <title>NBA Agent · The numbers behind the game</title>
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css" />
+    <script type="module" src="/assets/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#question">Skip to message input</a>
+    <div class="shell">
+      <aside class="sidebar" id="sidebar" aria-label="Conversation navigation">
+        <div class="brand">
+          <img src="/assets/mark.svg" alt="" width="34" height="34" /><span
+            >NBA <strong>Agent</strong></span
+          ><button
+            class="icon-button mobile-only"
+            id="close-sidebar"
+            aria-label="Close navigation"
+          >
+            ×
+          </button>
+        </div>
+        <button class="new-chat" id="new-chat">
+          <span>＋</span> New conversation <span class="button-arrow">↗</span>
+        </button>
+        <label class="search"
+          ><span aria-hidden="true">⌕</span
+          ><input
+            id="search"
+            type="search"
+            placeholder="Search conversations"
+            aria-label="Search conversations"
+            maxlength="100"
+        /></label>
+        <div class="sidebar-label">
+          CONVERSATIONS
+          <button
+            class="icon-button"
+            id="refresh-history"
+            aria-label="Refresh conversations"
+          >
+            ↻
+          </button>
+        </div>
+        <nav id="history" aria-label="Previous conversations"></nav>
+        <button id="more-history" class="text-button" hidden>
+          Load more conversations
+        </button>
+        <div class="sidebar-footer">
+          <span class="status-dot" id="connection-dot"></span>
+          <div>
+            <strong id="connection-label">Connecting…</strong
+            ><span>Personal NBA workspace</span>
+          </div>
+          <button
+            class="icon-button"
+            id="check-connection"
+            aria-label="Check connection"
+          >
+            ↻
+          </button>
+        </div>
+      </aside>
+      <button
+        class="sidebar-scrim"
+        id="sidebar-scrim"
+        aria-label="Close navigation"
+        hidden
+      ></button>
+      <main class="main">
+        <header class="topbar">
+          <div class="title-row">
+            <button
+              class="icon-button"
+              id="toggle-sidebar"
+              aria-label="Toggle conversation sidebar"
+              aria-expanded="true"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                aria-hidden="true"
+              >
+                <rect x="3" y="4" width="18" height="16" rx="3" />
+                <path d="M9 4v16" />
+              </svg>
+            </button>
+            <h1 id="session-title">New conversation</h1>
+            <span class="local-badge"><span></span> LOCAL</span>
+          </div>
+          <button
+            class="metrics-bar"
+            id="open-metrics"
+            title="View session metrics"
+          >
+            <span
+              ><span class="metric-label">Tokens</span>
+              <strong id="tokens">0</strong></span
+            ><span
+              ><span class="metric-label">Est. cost</span>
+              <strong id="cost">$0.00</strong></span
+            ><span
+              ><span class="metric-label">Model calls</span>
+              <strong id="calls">0</strong></span
+            ><span id="partial-label" class="partial" hidden
+              >Partial estimate</span
+            ><span class="metrics-arrow" aria-hidden="true">↗</span>
+          </button>
+        </header>
+        <div id="notice" class="notice" role="status" hidden></div>
+        <div class="conversation-scroll" id="conversation-scroll">
+          <section class="welcome" id="welcome" aria-labelledby="welcome-title">
+            <div class="court-mark" aria-hidden="true">
+              <svg viewBox="0 0 100 100" fill="none">
+                <rect x="12" y="12" width="76" height="76" rx="13" />
+                <path d="M12 50h76M50 12v76" />
+                <circle cx="50" cy="50" r="18" />
+                <path d="M30 12v15h40V12M30 88V73h40v15" />
+              </svg>
+            </div>
+            <div class="eyebrow">YOUR NBA RESEARCH COMPANION</div>
+            <h2 id="welcome-title">
+              The game has stories.<br /><span>Start with the numbers.</span>
+            </h2>
+            <p>
+              Explore player stats, revisit playoff runs, and put<br
+                class="desktop-break"
+              />
+              great performances side by side.
+            </p>
+            <div class="starters">
+              <button
+                data-prompt="What were Curry’s stats in the 2016 Western Conference Finals?"
+              >
+                <span class="starter-icon">↗</span
+                ><span class="starter-tag">REVISIT A SERIES</span
+                ><strong>Curry’s 2016<br />Western Conference Finals</strong
+                ><span class="starter-link"
+                  >Explore the numbers <span>↗</span></span
+                >
+              </button>
+              <button
+                data-prompt="Compare Nikola Jokic and Joel Embiid in the 2021 playoffs."
+              >
+                <span class="starter-icon">⇄</span
+                ><span class="starter-tag">COMPARE PLAYERS</span
+                ><strong>Jokić vs. Embiid<br />in the 2021 playoffs</strong
+                ><span class="starter-link"
+                  >See how they compare <span>↗</span></span
+                >
+              </button>
+              <button
+                data-prompt="Show LeBron James’s last five regular-season games in the dataset."
+              >
+                <span class="starter-icon">≡</span
+                ><span class="starter-tag">LOOK AT GAME LOGS</span
+                ><strong>LeBron’s last five<br />regular-season games</strong
+                ><span class="starter-link"
+                  >Open the game log <span>↗</span></span
+                >
+              </button>
+            </div>
+            <div class="source-note">
+              <span class="mini-diamond">◇</span> Historical NBA data
+              <span>·</span> Answers grounded in recorded stats
+            </div>
+          </section>
+          <section
+            id="messages"
+            class="messages"
+            aria-label="Chat messages"
+            aria-live="polite"
+            aria-relevant="additions"
+          ></section>
+        </div>
+        <footer class="composer-area">
+          <form id="chat-form" class="composer">
+            <label for="question" class="sr-only"
+              >Ask about NBA player statistics</label
+            >
+            <textarea
+              id="question"
+              rows="2"
+              maxlength="2000"
+              placeholder="Ask about a player, a season, a matchup…"
+            ></textarea>
+            <div class="composer-bottom">
+              <span
+                ><span class="composer-spark">✳</span> Historical player
+                statistics</span
+              >
+              <div>
+                <span id="character-count" class="character-count"></span
+                ><button
+                  type="submit"
+                  id="send"
+                  aria-label="Send message"
+                  disabled
+                >
+                  ↑
+                </button>
+              </div>
+            </div>
+          </form>
+          <div class="composer-help">
+            <span
+              >Enter to send <span>·</span> Shift + Enter for a new line</span
+            ><span>Check the data behind each answer.</span>
+          </div>
+        </footer>
+      </main>
+    </div>
+    <dialog id="metrics-dialog" aria-labelledby="metrics-title">
+      <div class="dialog-heading">
+        <div>
+          <div class="eyebrow">THIS CONVERSATION</div>
+          <h2 id="metrics-title">Session details</h2>
+        </div>
+        <button
+          id="close-metrics"
+          class="icon-button"
+          aria-label="Close session details"
+        >
+          ×
+        </button>
+      </div>
+      <div id="metrics-content"></div>
+    </dialog>
+  </body>
+</html>

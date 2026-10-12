@@ -1,13 +1,14 @@
 # NBA Agent — local prototype
 
 Python 3.12, FastAPI, PydanticAI, OpenAI and PostgreSQL. The fixed Kaggle v515
-snapshot is the sole statistical source. No vector database, frontend, live-data
-provider or document retrieval is needed for this first statistics backend.
+snapshot is the sole statistical source. A browser chat interface is served by
+the same local backend. No vector database, live-data provider or document
+retrieval is used.
 
 ## Current local setup
 
-Backend code and Python configuration live in `backend/`; `frontend/` is reserved
-for the upcoming UI. The existing project virtual environment remains at `.venv`
+Backend code and Python configuration live in `backend/`; the browser interface
+lives in `frontend/`. The existing project virtual environment remains at `.venv`
 in the repository root, shared with the audit tools. PostgreSQL 18.6 runs through
 Postgres.app on localhost:5432. The backend uses the dedicated `nba_agent`
 database and restricted `nba_agent_app` role. Its administrator connection is
@@ -23,6 +24,19 @@ Start the backend from this directory:
 ```bash
 .venv/bin/nba-agent serve
 ```
+
+Open [NBA Agent](http://127.0.0.1:8001/) to chat. The frontend is plain HTML, CSS
+and JavaScript served by FastAPI: no frontend build, npm install, second server,
+or CORS configuration is required. Restart an already-running backend after
+updating its Python code. Frontend asset edits are picked up on browser reload.
+
+The UI includes searchable conversation history, follow-up chat, visible session
+token/cost/call totals, a detailed metrics dialog, and expandable statistics and
+source tables. It renders only user-visible messages, displays unknown metrics as
+unavailable, and distinguishes partial cost estimates. Historical sessions can be
+reopened through the sidebar or bookmarked with `?session=<uuid>`. Starter cards
+fill the composer; sending a question makes the normal model calls. Until a key
+is configured, chat is disabled and stored conversations remain browsable.
 
 Open [the interactive API docs](http://127.0.0.1:8001/docs) to try requests.
 Use [the health endpoint](http://127.0.0.1:8001/health) to inspect database and model readiness.
@@ -103,6 +117,11 @@ messages with unique UUID primary keys, a session ID, sequence number, role,
 message type, JSON content and timestamp. Roles are `user`, `gate`,
 `analyst`, `tool` and `application`. Tool-call IDs connect requests with
 results; there is no separate turn/request ID or `chat_turns` table.
+
+GET `/v1/sessions` returns `sessions` and `next_offset`, ordered by most recent
+activity. Each item has `id`, `title` (the first visible user message, shortened to
+120 characters), `created_at`, and `last_activity_at`. Use `q` to search the full
+first message, `limit` (default 30, maximum 100), and `offset` to paginate.
 
 GET `/v1/sessions/<session-id>` returns `session` and ordered `messages`.
 The default page is 100 messages (maximum 500). Pass `limit` and
@@ -252,11 +271,20 @@ NBA_TEST_DATABASE=1 .venv/bin/pytest -c backend/pyproject.toml -q
 ```
 
 Integration tests require the imported local database. They read NBA records and
-write synthetic session logs, but never mutate the imported dataset. Tests cover
+write synthetic session logs, but never mutate the imported dataset. Those synthetic
+conversations also appear in the local UI history. Tests cover
 priority query totals, weighted percentages, participation, name ambiguity,
 parameterized injection attempts, least-privilege access, refusals, evidence
 validation, follow-up sessions, per-call pricing, session totals, accounting retries/
 failures/cancellations, atomic saves and HTTP boundaries.
+
+Frontend formatting and data-boundary tests use Node's built-in test runner
+(Node is needed only for these checks, not to run the UI):
+
+```bash
+node --test frontend/tests/*.test.js
+node --check frontend/assets/app.js
+```
 
 After adding a real key, explicitly run the live evaluation suite (paid calls):
 
@@ -285,7 +313,7 @@ Coding-agent conventions are documented in [AGENTS.md](AGENTS.md).
 * backend/src/nba_agent/ingestion.py and migrations/: local setup and source ingestion.
 * backend/tests/: unit, database and mock-model integration tests.
 * backend/evals/: real-model evaluation cases and opt-in runner.
-* frontend/: reserved for the chat UI; no frontend implementation yet.
+* frontend/: same-origin chat interface, styling, and browser-side formatting tests.
 * audit/: original data audit; its recommendations predate the accepted prototype policy.
 * data/raw/: unchanged, ignored Kaggle snapshot and archive.
 

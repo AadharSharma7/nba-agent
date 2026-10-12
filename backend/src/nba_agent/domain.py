@@ -118,3 +118,15 @@ class ModelMetricsPage(BaseModel):
     session_id: UUID
     metrics: list[ModelMetricRecord]
     next_offset: int | None
+
+
+class SessionSummary(BaseModel):
+    id: UUID
+    title: str
+    created_at: datetime
+    last_activity_at: datetime
+
+
+class SessionsPage(BaseModel):
+    sessions: list[SessionSummary]
+    next_offset: int | None
