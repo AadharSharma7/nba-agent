@@ -1,0 +1,352 @@
+[
+  {
+    "id": "curry_wcf",
+    "passed": true,
+    "status_matches": true,
+    "stats_match": true,
+    "elapsed_seconds": 5.442,
+    "response": {
+      "session_id": "c97f370c-a8fd-4d4a-9a90-b77f24735e26",
+      "turn_id": "f380bdfb-3137-44ef-a9e3-5290ccdbab91",
+      "status": "answer",
+      "answer": "In the 2016 Western Conference Finals, Stephen Curry played 7 games and averaged approximately 27.9 points, 6.3 rebounds, and 5.9 assists per game.",
+      "sources": [
+        {
+          "evidence_id": "ef488d361eb64453",
+          "id": "kaggle-v515",
+          "version": 515,
+          "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+          "max_game_date": "2026-06-13",
+          "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+        }
+      ],
+      "data": [
+        {
+          "status": "ok",
+          "evidence_id": "ef488d361eb64453",
+          "query": {
+            "players": [
+              "Stephen Curry"
+            ],
+            "season_start": 2015,
+            "season_end": 2015,
+            "phase": "playoffs",
+            "playoff_round": "conference_finals",
+            "conference": "west",
+            "opponent_team": null,
+            "opposing_player": null,
+            "home": null,
+            "date_from": null,
+            "date_to": null,
+            "last_n": null,
+            "group_by": "player",
+            "limit": 100
+          },
+          "players": [
+            {
+              "id": 201939,
+              "name": "Stephen Curry"
+            }
+          ],
+          "opponent": null,
+          "opposing_player": null,
+          "rows": [
+            {
+              "player_id": 201939,
+              "player_name": "Stephen Curry",
+              "games": 7,
+              "first_game": "2016-05-16",
+              "last_game": "2016-05-30",
+              "points": 195,
+              "rebounds": 44,
+              "assists": 41,
+              "ppg": 27.857142857142858,
+              "rpg": 6.285714285714286,
+              "apg": 5.857142857142857,
+              "mpg": 36.285714285714285,
+              "spg": 2.142857142857143,
+              "bpg": 0.0,
+              "tpg": 4.0,
+              "fgm": 62,
+              "fga": 140,
+              "fg3m": 32,
+              "fg3a": 77,
+              "ftm": 39,
+              "fta": 44,
+              "fg_pct": 44.285714285714285,
+              "three_pct": 41.55844155844156,
+              "ft_pct": 88.63636363636364,
+              "points_games": 7,
+              "rebounds_games": 7,
+              "assists_games": 7,
+              "minutes_games": 7
+            }
+          ],
+          "truncated": false,
+          "players_without_returned_rows": [],
+          "source": {
+            "id": "kaggle-v515",
+            "version": 515,
+            "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+            "max_game_date": "2026-06-13",
+            "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+          },
+          "definitions": {
+            "season_start": "2020 denotes 2020\u201321; playoffs held in 2021.",
+            "percentages": "100 times total makes divided by total attempts; not mean game percentages.",
+            "opposing_player": "Both recorded appearances on opposing teams; not guarding or shared court time.",
+            "minutes": "Values supplied by the dataset.",
+            "last_n": "Last N matching appearances per player after other filters."
+          }
+        }
+      ],
+      "model_calls": 3
+    }
+  },
+  {
+    "id": "playoff_comparison",
+    "passed": false,
+    "status_matches": true,
+    "stats_match": false,
+    "elapsed_seconds": 5.081,
+    "response": {
+      "session_id": "0eb119a3-b463-446b-b6f6-b262c1229c0b",
+      "turn_id": "e5470ea2-3a5e-43c3-8a02-55277419088b",
+      "status": "answer",
+      "answer": "Since 2021 in the NBA playoffs, Nikola Jokic has played 57 games, averaging 28.4 points, 13.2 rebounds, and 8.6 assists per game. Joel Embiid has played 32 games in the same period, averaging 25.5 points, 9.7 rebounds, and 3.7 assists per game. Jokic has higher averages in points, rebounds, and assists compared to Embiid over these playoff games.",
+      "sources": [
+        {
+          "evidence_id": "18160b48126bdcf4",
+          "id": "kaggle-v515",
+          "version": 515,
+          "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+          "max_game_date": "2026-06-13",
+          "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+        }
+      ],
+      "data": [
+        {
+          "status": "ok",
+          "evidence_id": "18160b48126bdcf4",
+          "query": {
+            "players": [
+              "Nikola Jokic",
+              "Joel Embiid"
+            ],
+            "season_start": 2021,
+            "season_end": null,
+            "phase": "playoffs",
+            "playoff_round": null,
+            "conference": null,
+            "opponent_team": null,
+            "opposing_player": null,
+            "home": null,
+            "date_from": null,
+            "date_to": null,
+            "last_n": null,
+            "group_by": "player",
+            "limit": 100
+          },
+          "players": [
+            {
+              "id": 203999,
+              "name": "Nikola Jokic"
+            },
+            {
+              "id": 203954,
+              "name": "Joel Embiid"
+            }
+          ],
+          "opponent": null,
+          "opposing_player": null,
+          "rows": [
+            {
+              "player_id": 203954,
+              "player_name": "Joel Embiid",
+              "games": 32,
+              "first_game": "2022-04-16",
+              "last_game": "2026-05-10",
+              "points": 815,
+              "rebounds": 311,
+              "assists": 117,
+              "ppg": 25.46875,
+              "rpg": 9.71875,
+              "apg": 3.65625,
+              "mpg": 37.286458333333336,
+              "spg": 0.59375,
+              "bpg": 1.5,
+              "tpg": 3.34375,
+              "fgm": 260,
+              "fga": 571,
+              "fg3m": 30,
+              "fg3a": 128,
+              "ftm": 265,
+              "fta": 310,
+              "fg_pct": 45.53415061295972,
+              "three_pct": 23.4375,
+              "ft_pct": 85.48387096774194,
+              "points_games": 32,
+              "rebounds_games": 32,
+              "assists_games": 32,
+              "minutes_games": 32
+            },
+            {
+              "player_id": 203999,
+              "player_name": "Nikola Jokic",
+              "games": 57,
+              "first_game": "2022-04-16",
+              "last_game": "2026-04-30",
+              "points": 1621,
+              "rebounds": 753,
+              "assists": 492,
+              "ppg": 28.43859649122807,
+              "rpg": 13.210526315789474,
+              "apg": 8.631578947368421,
+              "mpg": 38.98508771929824,
+              "spg": 1.4035087719298247,
+              "bpg": 0.8771929824561403,
+              "tpg": 3.719298245614035,
+              "fgm": 606,
+              "fga": 1153,
+              "fg3m": 88,
+              "fg3a": 254,
+              "ftm": 321,
+              "fta": 387,
+              "fg_pct": 52.55854293148309,
+              "three_pct": 34.645669291338585,
+              "ft_pct": 82.94573643410853,
+              "points_games": 57,
+              "rebounds_games": 57,
+              "assists_games": 57,
+              "minutes_games": 57
+            }
+          ],
+          "truncated": false,
+          "players_without_returned_rows": [],
+          "source": {
+            "id": "kaggle-v515",
+            "version": 515,
+            "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+            "max_game_date": "2026-06-13",
+            "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+          },
+          "definitions": {
+            "season_start": "2020 denotes 2020\u201321; playoffs held in 2021.",
+            "percentages": "100 times total makes divided by total attempts; not mean game percentages.",
+            "opposing_player": "Both recorded appearances on opposing teams; not guarding or shared court time.",
+            "minutes": "Values supplied by the dataset.",
+            "last_n": "Last N matching appearances per player after other filters."
+          }
+        }
+      ],
+      "model_calls": 4
+    }
+  },
+  {
+    "id": "shared_games",
+    "passed": true,
+    "status_matches": true,
+    "stats_match": true,
+    "elapsed_seconds": 3.467,
+    "response": {
+      "session_id": "43e4b8d4-4c8d-42a2-8c2b-797a87336c2f",
+      "turn_id": "e89ac7c5-3ec5-4723-940c-00caf3304a05",
+      "status": "answer",
+      "answer": "Kawhi Leonard's career regular-season averages in games where LeBron James also played are based on 28 games. He averaged 24.0 points, 6.5 rebounds, 3.5 assists, 1.5 steals, and 0.64 blocks per game. He played about 34.0 minutes per game, shooting 48.7% from the field, 37.2% from three-point range, and 83.3% from the free-throw line.",
+      "sources": [
+        {
+          "evidence_id": "523148e7a83bf32a",
+          "id": "kaggle-v515",
+          "version": 515,
+          "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+          "max_game_date": "2026-06-13",
+          "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+        }
+      ],
+      "data": [
+        {
+          "status": "ok",
+          "evidence_id": "523148e7a83bf32a",
+          "query": {
+            "players": [
+              "Kawhi Leonard"
+            ],
+            "season_start": null,
+            "season_end": null,
+            "phase": "regular",
+            "playoff_round": null,
+            "conference": null,
+            "opponent_team": null,
+            "opposing_player": "LeBron James",
+            "home": null,
+            "date_from": null,
+            "date_to": null,
+            "last_n": null,
+            "group_by": "player",
+            "limit": 100
+          },
+          "players": [
+            {
+              "id": 202695,
+              "name": "Kawhi Leonard"
+            }
+          ],
+          "opponent": null,
+          "opposing_player": {
+            "id": 2544,
+            "name": "LeBron James"
+          },
+          "rows": [
+            {
+              "player_id": 202695,
+              "player_name": "Kawhi Leonard",
+              "games": 28,
+              "first_game": "2012-01-17",
+              "last_game": "2026-02-20",
+              "points": 673,
+              "rebounds": 182,
+              "assists": 97,
+              "ppg": 24.035714285714285,
+              "rpg": 6.5,
+              "apg": 3.4642857142857144,
+              "mpg": 34.011785714285715,
+              "spg": 1.5,
+              "bpg": 0.6428571428571429,
+              "tpg": 2.5,
+              "fgm": 242,
+              "fga": 497,
+              "fg3m": 64,
+              "fg3a": 172,
+              "ftm": 125,
+              "fta": 150,
+              "fg_pct": 48.69215291750503,
+              "three_pct": 37.2093023255814,
+              "ft_pct": 83.33333333333333,
+              "points_games": 28,
+              "rebounds_games": 28,
+              "assists_games": 28,
+              "minutes_games": 28
+            }
+          ],
+          "truncated": false,
+          "players_without_returned_rows": [],
+          "source": {
+            "id": "kaggle-v515",
+            "version": 515,
+            "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+            "max_game_date": "2026-06-13",
+            "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+          },
+          "definitions": {
+            "season_start": "2020 denotes 2020\u201321; playoffs held in 2021.",
+            "percentages": "100 times total makes divided by total attempts; not mean game percentages.",
+            "opposing_player": "Both recorded appearances on opposing teams; not guarding or shared court time.",
+            "minutes": "Values supplied by the dataset.",
+            "last_n": "Last N matching appearances per player after other filters."
+          }
+        }
+      ],
+      "model_calls": 3
+    }
+  }
+]

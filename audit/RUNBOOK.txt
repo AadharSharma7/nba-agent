@@ -1,0 +1,68 @@
+NBA DATA AUDIT — KAGGLE SNAPSHOT 515
+
+Scope
+  Audit utilities only. No application backend, agent, migrations or UI.
+  The original data is unchanged. DuckDB is disposable audit storage.
+  Python 3.12+ is required (verified with 3.12.14).
+
+From the project root
+  python3.12 -m venv .venv
+  .venv/bin/python -m pip install -r audit/requirements.txt
+
+The existing .venv is already initialized. Do not recreate it unnecessarily.
+
+Pinned source
+  Dataset: eoinamoore/historical-nba-data-and-player-box-scores
+  Version: 515
+  Metadata URL:
+    https://www.kaggle.com/api/v1/datasets/view/eoinamoore/historical-nba-data-and-player-box-scores
+  Download URL:
+    https://www.kaggle.com/api/v1/datasets/download/eoinamoore/historical-nba-data-and-player-box-scores?datasetVersionNumber=515
+
+Download destinations (already present)
+  data/raw/kaggle/metadata.json
+  data/raw/kaggle/v515.zip
+
+The public metadata URL describes the latest version and may change. The saved
+manifest preserves metadata observed during this audit. Do not overwrite it
+with a future latest-version response while claiming it describes version 515.
+
+Reproduce the full audit
+  .venv/bin/python audit/scripts/prepare_snapshot.py
+  .venv/bin/python audit/scripts/audit_dataset.py
+  .venv/bin/python audit/scripts/check_quality.py
+  .venv/bin/python audit/scripts/verify_audit.py
+  .venv/bin/python audit/scripts/build_report.py
+
+If files and the audit database already exist, start at check_quality.py.
+To recompute the file profile without reloading CSV tables:
+  .venv/bin/python audit/scripts/audit_dataset.py --reuse-tables
+
+Outputs
+  audit/reports/data-audit.html        Human-readable report and expandable SQL
+  audit/reports/snapshot_manifest.json Source metadata, sizes, hashes, sample rows
+  audit/reports/profile.json          Schema, row counts, nulls, duplicate keys
+  audit/reports/quality_checks.json   Coverage and integrity checks with SQL
+  audit/reports/verification.json     Independent CSV checks and hash validation
+
+Isolation
+  .venv/                             Project-local Python runtime dependencies
+  audit/work/audit.duckdb             Rebuildable analysis database
+  data/raw/kaggle/v515/               Unmodified extracted source files
+  No PostgreSQL credentials, networked database or model API key are used.
+  Raw files, scratch database, venv and .env are excluded by .gitignore.
+
+Interpretation
+  SQL execution success is NOT a claim that the dataset passed quality checks.
+  Findings include known source errors and incomplete coverage.
+  Positive minutes is used only for the modern example queries; it is not a
+  general-purpose historical participation rule.
+  Missing player rows do not establish DNP, injury or roster membership.
+  Source zero values must not be globally changed to NULL or treated as observed
+  zero without metric/era evidence. No repairs are applied by these scripts.
+  The external Curry fixture intentionally records a minutes discrepancy.
+
+Future snapshots
+  These utilities deliberately target v515. A new snapshot needs a new raw
+  directory, manifest, explicit version configuration and reviewed fixture
+  changes. Do not silently repoint an existing snapshot to newer data.

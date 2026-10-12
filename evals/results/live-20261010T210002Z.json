@@ -1,0 +1,107 @@
+[
+  {
+    "id": "luka_duplicate_identity",
+    "passed": true,
+    "status_matches": true,
+    "stats_match": true,
+    "query_matches": true,
+    "elapsed_seconds": 3.664,
+    "response": {
+      "session_id": "9f5a5287-d602-4afa-90f7-9ddeca18460c",
+      "turn_id": "1b32c4d0-67de-4fdd-9e64-1786597fea57",
+      "status": "answer",
+      "answer": "In the 2023-24 NBA regular season, Luka Doncic played 70 games. He averaged 33.9 points, 9.2 rebounds, and 9.8 assists per game. He also averaged 37.0 minutes per game, with shooting percentages of 48.7% from the field, 38.2% from three-point range, and 78.6% from the free-throw line. Additionally, he averaged 1.4 steals, 0.5 blocks, and 4.0 turnovers per game.",
+      "sources": [
+        {
+          "evidence_id": "411278af5ab215dc",
+          "id": "kaggle-v515",
+          "version": 515,
+          "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+          "max_game_date": "2026-06-13",
+          "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+        }
+      ],
+      "data": [
+        {
+          "status": "ok",
+          "evidence_id": "411278af5ab215dc",
+          "query": {
+            "players": [
+              "Luka Doncic"
+            ],
+            "season_start": 2023,
+            "season_end": 2023,
+            "phase": "regular",
+            "playoff_round": null,
+            "conference": null,
+            "opponent_team": null,
+            "opposing_player": null,
+            "home": null,
+            "date_from": null,
+            "date_to": null,
+            "last_n": null,
+            "group_by": "player",
+            "limit": 100
+          },
+          "players": [
+            {
+              "id": 1629029,
+              "name": "Luka Doncic"
+            }
+          ],
+          "opponent": null,
+          "opposing_player": null,
+          "rows": [
+            {
+              "player_id": 1629029,
+              "player_name": "Luka Doncic",
+              "games": 70,
+              "first_game": "2023-10-25",
+              "last_game": "2024-04-10",
+              "points": 2370,
+              "rebounds": 647,
+              "assists": 686,
+              "ppg": 33.857142857142854,
+              "rpg": 9.242857142857144,
+              "apg": 9.8,
+              "mpg": 37.042857142857144,
+              "spg": 1.4142857142857144,
+              "bpg": 0.5428571428571428,
+              "tpg": 4.0285714285714285,
+              "fgm": 804,
+              "fga": 1652,
+              "fg3m": 284,
+              "fg3a": 744,
+              "ftm": 478,
+              "fta": 608,
+              "fg_pct": 48.6682808716707,
+              "three_pct": 38.17204301075269,
+              "ft_pct": 78.61842105263158,
+              "points_games": 70,
+              "rebounds_games": 70,
+              "assists_games": 70,
+              "minutes_games": 70
+            }
+          ],
+          "truncated": false,
+          "players_without_returned_rows": [],
+          "source": {
+            "id": "kaggle-v515",
+            "version": 515,
+            "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+            "max_game_date": "2026-06-13",
+            "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+          },
+          "definitions": {
+            "season_start": "2020 denotes 2020\u201321; playoffs held in 2021.",
+            "percentages": "100 times total makes divided by total attempts; not mean game percentages.",
+            "opposing_player": "Both recorded appearances on opposing teams; not guarding or shared court time.",
+            "minutes": "Values supplied by the dataset.",
+            "last_n": "Last N matching appearances per player after other filters."
+          }
+        }
+      ],
+      "model_calls": 3
+    }
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "id": "luka_duplicate_identity",
+    "passed": false,
+    "status_matches": false,
+    "stats_match": false,
+    "query_matches": false,
+    "elapsed_seconds": 4.662,
+    "response": {
+      "session_id": "281f237c-f8a5-45e7-a345-0b0bad7550ff",
+      "turn_id": "4fd29f94-5292-4a1b-8f39-705c9200756d",
+      "status": "error",
+      "answer": "I couldn't complete that NBA query. Please try again.",
+      "sources": [],
+      "data": [],
+      "model_calls": 4
+    }
+  }
+]

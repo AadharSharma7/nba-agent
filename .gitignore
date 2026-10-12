@@ -1,0 +1,12 @@
+data/raw/
+audit/work/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.example.env
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+*.log

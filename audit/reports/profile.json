@@ -1,0 +1,3052 @@
+{
+  "audited_at": "2026-10-10T20:13:35.403752+00:00",
+  "duckdb_version": "1.5.6",
+  "source_version": 515,
+  "tables": {
+    "games": {
+      "file": "Games.csv",
+      "rows": 73279,
+      "columns": [
+        "gameId",
+        "gameDateTimeEst",
+        "hometeamCity",
+        "hometeamName",
+        "hometeamId",
+        "awayteamCity",
+        "awayteamName",
+        "awayteamId",
+        "homeScore",
+        "awayScore",
+        "winner",
+        "gameType",
+        "gameSubtype",
+        "gameLabel",
+        "gameSubLabel",
+        "seriesGameNumber",
+        "attendance",
+        "arenaId",
+        "arenaName",
+        "arenaCity",
+        "arenaState",
+        "officials",
+        "gameDate"
+      ],
+      "null_counts": {
+        "gameId": 0,
+        "gameDateTimeEst": 0,
+        "hometeamCity": 7,
+        "hometeamName": 0,
+        "hometeamId": 0,
+        "awayteamCity": 7,
+        "awayteamName": 0,
+        "awayteamId": 0,
+        "homeScore": 0,
+        "awayScore": 0,
+        "winner": 0,
+        "gameType": 0,
+        "gameSubtype": 73205,
+        "gameLabel": 69236,
+        "gameSubLabel": 72951,
+        "seriesGameNumber": 67456,
+        "attendance": 71887,
+        "arenaId": 0,
+        "arenaName": 71879,
+        "arenaCity": 71879,
+        "arenaState": 71888,
+        "officials": 71879,
+        "gameDate": 0
+      },
+      "date_range": {
+        "first_date": "1946-11-26 19:00:00",
+        "last_date": "2026-06-13 20:30:00",
+        "invalid_dates": 0
+      },
+      "key": [
+        "gameId"
+      ],
+      "duplicate_keys": {
+        "duplicate_groups": 0,
+        "excess_rows": 0
+      },
+      "duplicate_examples": []
+    },
+    "players": {
+      "file": "Players.csv",
+      "rows": 6692,
+      "columns": [
+        "personId",
+        "firstName",
+        "lastName",
+        "birthDate",
+        "school",
+        "country",
+        "heightInches",
+        "bodyWeightLbs",
+        "jersey",
+        "guard",
+        "forward",
+        "center",
+        "dleagueFlag",
+        "nbaFlag",
+        "gamesPlayedFlag",
+        "draftYear",
+        "draftRound",
+        "draftNumber",
+        "fromYear",
+        "toYear"
+      ],
+      "null_counts": {
+        "personId": 0,
+        "firstName": 1,
+        "lastName": 2,
+        "birthDate": 1139,
+        "school": 1415,
+        "country": 1399,
+        "heightInches": 1585,
+        "bodyWeightLbs": 1595,
+        "jersey": 2868,
+        "guard": 0,
+        "forward": 0,
+        "center": 0,
+        "dleagueFlag": 1231,
+        "nbaFlag": 1231,
+        "gamesPlayedFlag": 1231,
+        "draftYear": 1136,
+        "draftRound": 1298,
+        "draftNumber": 1357,
+        "fromYear": 1337,
+        "toYear": 1922
+      },
+      "key": [
+        "personId"
+      ],
+      "duplicate_keys": {
+        "duplicate_groups": 0,
+        "excess_rows": 0
+      },
+      "duplicate_examples": []
+    },
+    "team_histories": {
+      "file": "TeamHistories.csv",
+      "rows": 140,
+      "columns": [
+        "teamId",
+        "teamCity",
+        "teamName",
+        "teamAbbrev",
+        "seasonFounded",
+        "seasonActiveTill",
+        "league"
+      ],
+      "null_counts": {
+        "teamId": 0,
+        "teamCity": 0,
+        "teamName": 0,
+        "teamAbbrev": 0,
+        "seasonFounded": 0,
+        "seasonActiveTill": 0,
+        "league": 0
+      },
+      "key": [
+        "teamId",
+        "seasonFounded",
+        "seasonActiveTill",
+        "league"
+      ],
+      "duplicate_keys": {
+        "duplicate_groups": 0,
+        "excess_rows": 0
+      },
+      "duplicate_examples": []
+    },
+    "player_stats": {
+      "file": "PlayerStatistics.csv",
+      "rows": 1669922,
+      "columns": [
+        "firstName",
+        "lastName",
+        "personId",
+        "gameId",
+        "gameDateTimeEst",
+        "playerteamCity",
+        "playerteamName",
+        "opponentteamCity",
+        "opponentteamName",
+        "gameType",
+        "gameLabel",
+        "gameSubLabel",
+        "seriesGameNumber",
+        "win",
+        "home",
+        "numMinutes",
+        "points",
+        "assists",
+        "blocks",
+        "steals",
+        "fieldGoalsAttempted",
+        "fieldGoalsMade",
+        "fieldGoalsPercentage",
+        "threePointersAttempted",
+        "threePointersMade",
+        "threePointersPercentage",
+        "freeThrowsAttempted",
+        "freeThrowsMade",
+        "freeThrowsPercentage",
+        "reboundsDefensive",
+        "reboundsOffensive",
+        "reboundsTotal",
+        "foulsPersonal",
+        "turnovers",
+        "plusMinusPoints",
+        "playerteamId",
+        "opponentteamId",
+        "comment",
+        "startingPosition",
+        "gameDate"
+      ],
+      "null_counts": {
+        "firstName": 234,
+        "lastName": 238,
+        "personId": 45,
+        "gameId": 0,
+        "gameDateTimeEst": 3513,
+        "playerteamCity": 168,
+        "playerteamName": 3513,
+        "opponentteamCity": 3681,
+        "opponentteamName": 3513,
+        "gameType": 50,
+        "gameLabel": 1552474,
+        "gameSubLabel": 1564831,
+        "seriesGameNumber": 1532465,
+        "win": 3523,
+        "home": 3513,
+        "numMinutes": 168636,
+        "points": 1687,
+        "assists": 1687,
+        "blocks": 1687,
+        "steals": 1687,
+        "fieldGoalsAttempted": 1687,
+        "fieldGoalsMade": 1687,
+        "fieldGoalsPercentage": 1687,
+        "threePointersAttempted": 1687,
+        "threePointersMade": 1687,
+        "threePointersPercentage": 1687,
+        "freeThrowsAttempted": 1687,
+        "freeThrowsMade": 1687,
+        "freeThrowsPercentage": 1687,
+        "reboundsDefensive": 1687,
+        "reboundsOffensive": 1687,
+        "reboundsTotal": 1687,
+        "foulsPersonal": 1687,
+        "turnovers": 1687,
+        "plusMinusPoints": 2635,
+        "playerteamId": 109299,
+        "opponentteamId": 109299,
+        "comment": 1519723,
+        "startingPosition": 1097141,
+        "gameDate": 3513
+      },
+      "date_range": {
+        "first_date": "1946-11-26 19:00:00",
+        "last_date": "2026-06-13 20:30:00",
+        "invalid_dates": 3513
+      },
+      "key": [
+        "gameId",
+        "personId"
+      ],
+      "duplicate_keys": {
+        "duplicate_groups": 0,
+        "excess_rows": 0
+      },
+      "duplicate_examples": []
+    },
+    "team_stats": {
+      "file": "TeamStatistics.csv",
+      "rows": 146560,
+      "columns": [
+        "gameId",
+        "gameDateTimeEst",
+        "teamCity",
+        "teamName",
+        "teamId",
+        "opponentTeamCity",
+        "opponentTeamName",
+        "opponentTeamId",
+        "home",
+        "win",
+        "teamScore",
+        "opponentScore",
+        "assists",
+        "blocks",
+        "steals",
+        "fieldGoalsAttempted",
+        "fieldGoalsMade",
+        "fieldGoalsPercentage",
+        "threePointersAttempted",
+        "threePointersMade",
+        "threePointersPercentage",
+        "freeThrowsAttempted",
+        "freeThrowsMade",
+        "freeThrowsPercentage",
+        "reboundsDefensive",
+        "reboundsOffensive",
+        "reboundsTotal",
+        "foulsPersonal",
+        "turnovers",
+        "plusMinusPoints",
+        "numMinutes",
+        "q1Points",
+        "q2Points",
+        "q3Points",
+        "q4Points",
+        "benchPoints",
+        "biggestLead",
+        "biggestScoringRun",
+        "leadChanges",
+        "pointsFastBreak",
+        "pointsFromTurnovers",
+        "pointsInThePaint",
+        "pointsSecondChance",
+        "timesTied",
+        "timeoutsRemaining",
+        "seasonWins",
+        "seasonLosses",
+        "coachId",
+        "gameType",
+        "gameLabel",
+        "gameSubLabel",
+        "seriesGameNumber",
+        "seed",
+        "reboundsTeam",
+        "turnoversTeam",
+        "ot1Points",
+        "ot2Points",
+        "otAllPoints",
+        "gameDate"
+      ],
+      "null_counts": {
+        "gameId": 0,
+        "gameDateTimeEst": 0,
+        "teamCity": 16,
+        "teamName": 2,
+        "teamId": 0,
+        "opponentTeamCity": 16,
+        "opponentTeamName": 2,
+        "opponentTeamId": 0,
+        "home": 0,
+        "win": 2,
+        "teamScore": 0,
+        "opponentScore": 0,
+        "assists": 4,
+        "blocks": 4,
+        "steals": 4,
+        "fieldGoalsAttempted": 4,
+        "fieldGoalsMade": 2,
+        "fieldGoalsPercentage": 4,
+        "threePointersAttempted": 4,
+        "threePointersMade": 4,
+        "threePointersPercentage": 5,
+        "freeThrowsAttempted": 4,
+        "freeThrowsMade": 2,
+        "freeThrowsPercentage": 4,
+        "reboundsDefensive": 4,
+        "reboundsOffensive": 4,
+        "reboundsTotal": 4,
+        "foulsPersonal": 4,
+        "turnovers": 4,
+        "plusMinusPoints": 57,
+        "numMinutes": 6,
+        "q1Points": 7848,
+        "q2Points": 7864,
+        "q3Points": 7898,
+        "q4Points": 7900,
+        "benchPoints": 7310,
+        "biggestLead": 7310,
+        "biggestScoringRun": 7310,
+        "leadChanges": 7310,
+        "pointsFastBreak": 7310,
+        "pointsFromTurnovers": 7310,
+        "pointsInThePaint": 7310,
+        "pointsSecondChance": 7310,
+        "timesTied": 7310,
+        "timeoutsRemaining": 7310,
+        "seasonWins": 7310,
+        "seasonLosses": 7310,
+        "coachId": 146560,
+        "gameType": 7590,
+        "gameLabel": 137250,
+        "gameSubLabel": 137332,
+        "seriesGameNumber": 137682,
+        "seed": 138688,
+        "reboundsTeam": 7590,
+        "turnoversTeam": 7590,
+        "ot1Points": 138744,
+        "ot2Points": 145454,
+        "otAllPoints": 138740,
+        "gameDate": 0
+      },
+      "date_range": {
+        "first_date": "1946-11-26 19:00:00",
+        "last_date": "2026-06-13 20:30:00",
+        "invalid_dates": 0
+      },
+      "key": [
+        "gameId",
+        "teamId"
+      ],
+      "duplicate_keys": {
+        "duplicate_groups": 0,
+        "excess_rows": 0
+      },
+      "duplicate_examples": []
+    },
+    "player_extended": {
+      "file": "PlayerStatisticsExtended.csv",
+      "rows": 838803,
+      "columns": [
+        "firstName",
+        "lastName",
+        "personId",
+        "gameId",
+        "gameDateTimeEst",
+        "gameType",
+        "gameLabel",
+        "gameSubLabel",
+        "seriesGameNumber",
+        "win",
+        "home",
+        "playerteamId",
+        "playerteamCity",
+        "playerteamName",
+        "opponentteamId",
+        "opponentteamCity",
+        "opponentteamName",
+        "comment",
+        "startingPosition",
+        "numMinutes",
+        "points",
+        "assists",
+        "reboundsTotal",
+        "reboundsOffensive",
+        "reboundsDefensive",
+        "fieldGoalsMade",
+        "fieldGoalsAttempted",
+        "fieldGoalsPercentage",
+        "threePointersMade",
+        "threePointersAttempted",
+        "threePointersPercentage",
+        "freeThrowsMade",
+        "freeThrowsAttempted",
+        "freeThrowsPercentage",
+        "steals",
+        "blocks",
+        "blocksAgainst",
+        "turnovers",
+        "foulsPersonal",
+        "foulsAgainst",
+        "plusMinusPoints",
+        "doubleDouble",
+        "tripleDouble",
+        "estimatedOffensiveRating",
+        "offensiveRating",
+        "spWorkOffensiveRating",
+        "estimatedDefensiveRating",
+        "defensiveRating",
+        "spWorkDefensiveRating",
+        "estimatedNetRating",
+        "netRating",
+        "spWorkNetRating",
+        "assistPercentage",
+        "assistToTurnoverRatio",
+        "assistRatio",
+        "offensiveReboundPercentage",
+        "defensiveReboundPercentage",
+        "reboundPercentage",
+        "teamTurnoverPercentage",
+        "estimatedTurnoverPercentage",
+        "effectiveFieldGoalPercentage",
+        "trueShootingPercentage",
+        "usagePercentage",
+        "estimatedUsagePercentage",
+        "estimatedPace",
+        "pace",
+        "pacePer40",
+        "spWorkPace",
+        "playerImpactEstimate",
+        "possessions",
+        "pointsOffTurnovers",
+        "pointsSecondChance",
+        "pointsFastBreak",
+        "pointsInPaint",
+        "opponentPointsOffTurnovers",
+        "opponentPointsSecondChance",
+        "opponentPointsFastBreak",
+        "opponentPointsInPaint",
+        "percentFieldGoalAttempts2Point",
+        "percentFieldGoalAttempts3Point",
+        "percentPoints2Point",
+        "percentPoints2PointMidRange",
+        "percentPoints3Point",
+        "percentPointsFastBreak",
+        "percentPointsFreeThrow",
+        "percentPointsOffTurnovers",
+        "percentPointsInPaint",
+        "percentAssisted2PointMade",
+        "percentUnassisted2PointMade",
+        "percentAssisted3PointMade",
+        "percentUnassisted3PointMade",
+        "percentAssistedFieldGoalsMade",
+        "percentUnassistedFieldGoalsMade",
+        "percentTeamFieldGoalsMade",
+        "percentTeamFieldGoalsAttempted",
+        "percentTeamThreePointersMade",
+        "percentTeamThreePointersAttempted",
+        "percentTeamFreeThrowsMade",
+        "percentTeamFreeThrowsAttempted",
+        "percentTeamOffensiveRebounds",
+        "percentTeamDefensiveRebounds",
+        "percentTeamRebounds",
+        "percentTeamAssists",
+        "percentTeamTurnovers",
+        "percentTeamSteals",
+        "percentTeamBlocks",
+        "percentTeamBlocksAgainst",
+        "percentTeamFoulsPersonal",
+        "percentTeamFoulsDrawn",
+        "percentTeamPoints"
+      ],
+      "null_counts": {
+        "firstName": 141,
+        "lastName": 145,
+        "personId": 0,
+        "gameId": 0,
+        "gameDateTimeEst": 2999,
+        "gameType": 0,
+        "gameLabel": 776341,
+        "gameSubLabel": 785502,
+        "seriesGameNumber": 760246,
+        "win": 2999,
+        "home": 2999,
+        "playerteamId": 90798,
+        "playerteamCity": 149,
+        "playerteamName": 2999,
+        "opponentteamId": 90798,
+        "opponentteamCity": 3148,
+        "opponentteamName": 2999,
+        "comment": 838795,
+        "startingPosition": 266022,
+        "numMinutes": 1257,
+        "points": 953,
+        "assists": 953,
+        "reboundsTotal": 953,
+        "reboundsOffensive": 953,
+        "reboundsDefensive": 953,
+        "fieldGoalsMade": 953,
+        "fieldGoalsAttempted": 953,
+        "fieldGoalsPercentage": 953,
+        "threePointersMade": 953,
+        "threePointersAttempted": 953,
+        "threePointersPercentage": 953,
+        "freeThrowsMade": 953,
+        "freeThrowsAttempted": 953,
+        "freeThrowsPercentage": 953,
+        "steals": 953,
+        "blocks": 953,
+        "blocksAgainst": 61,
+        "turnovers": 953,
+        "foulsPersonal": 953,
+        "foulsAgainst": 61,
+        "plusMinusPoints": 1856,
+        "doubleDouble": 61,
+        "tripleDouble": 61,
+        "estimatedOffensiveRating": 0,
+        "offensiveRating": 0,
+        "spWorkOffensiveRating": 0,
+        "estimatedDefensiveRating": 0,
+        "defensiveRating": 0,
+        "spWorkDefensiveRating": 0,
+        "estimatedNetRating": 0,
+        "netRating": 0,
+        "spWorkNetRating": 0,
+        "assistPercentage": 0,
+        "assistToTurnoverRatio": 0,
+        "assistRatio": 27,
+        "offensiveReboundPercentage": 0,
+        "defensiveReboundPercentage": 0,
+        "reboundPercentage": 0,
+        "teamTurnoverPercentage": 27,
+        "estimatedTurnoverPercentage": 0,
+        "effectiveFieldGoalPercentage": 0,
+        "trueShootingPercentage": 0,
+        "usagePercentage": 27,
+        "estimatedUsagePercentage": 0,
+        "estimatedPace": 0,
+        "pace": 0,
+        "pacePer40": 0,
+        "spWorkPace": 0,
+        "playerImpactEstimate": 0,
+        "possessions": 0,
+        "pointsOffTurnovers": 0,
+        "pointsSecondChance": 0,
+        "pointsFastBreak": 0,
+        "pointsInPaint": 0,
+        "opponentPointsOffTurnovers": 0,
+        "opponentPointsSecondChance": 0,
+        "opponentPointsFastBreak": 0,
+        "opponentPointsInPaint": 0,
+        "percentFieldGoalAttempts2Point": 0,
+        "percentFieldGoalAttempts3Point": 0,
+        "percentPoints2Point": 0,
+        "percentPoints2PointMidRange": 0,
+        "percentPoints3Point": 0,
+        "percentPointsFastBreak": 0,
+        "percentPointsFreeThrow": 0,
+        "percentPointsOffTurnovers": 0,
+        "percentPointsInPaint": 0,
+        "percentAssisted2PointMade": 0,
+        "percentUnassisted2PointMade": 0,
+        "percentAssisted3PointMade": 0,
+        "percentUnassisted3PointMade": 0,
+        "percentAssistedFieldGoalsMade": 0,
+        "percentUnassistedFieldGoalsMade": 0,
+        "percentTeamFieldGoalsMade": 0,
+        "percentTeamFieldGoalsAttempted": 0,
+        "percentTeamThreePointersMade": 0,
+        "percentTeamThreePointersAttempted": 0,
+        "percentTeamFreeThrowsMade": 0,
+        "percentTeamFreeThrowsAttempted": 0,
+        "percentTeamOffensiveRebounds": 0,
+        "percentTeamDefensiveRebounds": 0,
+        "percentTeamRebounds": 0,
+        "percentTeamAssists": 0,
+        "percentTeamTurnovers": 0,
+        "percentTeamSteals": 0,
+        "percentTeamBlocks": 0,
+        "percentTeamBlocksAgainst": 0,
+        "percentTeamFoulsPersonal": 0,
+        "percentTeamFoulsDrawn": 0,
+        "percentTeamPoints": 0
+      },
+      "date_range": {
+        "first_date": "1996-11-01 19:00:00",
+        "last_date": "2026-06-13 20:30:00",
+        "invalid_dates": 2999
+      },
+      "key": [
+        "gameId",
+        "personId"
+      ],
+      "duplicate_keys": {
+        "duplicate_groups": 0,
+        "excess_rows": 0
+      },
+      "duplicate_examples": []
+    },
+    "team_extended": {
+      "file": "TeamStatisticsExtended.csv",
+      "rows": 79724,
+      "columns": [
+        "gameId",
+        "gameDateTimeEst",
+        "gameType",
+        "gameLabel",
+        "gameSubLabel",
+        "seriesGameNumber",
+        "teamId",
+        "teamCity",
+        "teamName",
+        "opponentTeamId",
+        "opponentTeamCity",
+        "opponentTeamName",
+        "home",
+        "win",
+        "teamScore",
+        "opponentScore",
+        "seed",
+        "numMinutes",
+        "assists",
+        "steals",
+        "blocks",
+        "blocksAgainst",
+        "fieldGoalsMade",
+        "fieldGoalsAttempted",
+        "fieldGoalsPercentage",
+        "threePointersMade",
+        "threePointersAttempted",
+        "threePointersPercentage",
+        "freeThrowsMade",
+        "freeThrowsAttempted",
+        "freeThrowsPercentage",
+        "reboundsOffensive",
+        "reboundsDefensive",
+        "reboundsTotal",
+        "reboundsTeam",
+        "foulsPersonal",
+        "personalFoulsDrawn",
+        "turnovers",
+        "turnoversTeam",
+        "plusMinusPoints",
+        "q1Points",
+        "q2Points",
+        "q3Points",
+        "q4Points",
+        "ot1Points",
+        "ot2Points",
+        "otAllPoints",
+        "benchPoints",
+        "biggestLead",
+        "biggestScoringRun",
+        "leadChanges",
+        "pointsFastBreak",
+        "pointsFromTurnovers",
+        "pointsInThePaint",
+        "pointsSecondChance",
+        "timesTied",
+        "timeoutsRemaining",
+        "seasonWins",
+        "seasonLosses",
+        "estimatedOffensiveRating",
+        "offensiveRating",
+        "estimatedDefensiveRating",
+        "defensiveRating",
+        "estimatedNetRating",
+        "netRating",
+        "assistPercentage",
+        "assistToTurnoverRatio",
+        "assistRatio",
+        "offensiveReboundPercentage",
+        "defensiveReboundPercentage",
+        "reboundPercentage",
+        "teamTurnoverPercentage",
+        "effectiveFieldGoalPercentage",
+        "trueShootingPercentage",
+        "estimatedPace",
+        "pace",
+        "pacePer40",
+        "possessions",
+        "playerImpactEstimate",
+        "pointsOffTurnovers",
+        "opponentPointsOffTurnovers",
+        "opponentPointsSecondChance",
+        "opponentPointsFastBreak",
+        "opponentPointsInPaint",
+        "percentFieldGoalAttempts2Point",
+        "percentFieldGoalAttempts3Point",
+        "percentPoints2Point",
+        "percentPoints2PointMidRange",
+        "percentPoints3Point",
+        "percentPointsFastBreak",
+        "percentPointsFreeThrow",
+        "percentPointsOffTurnovers",
+        "percentPointsInPaint",
+        "percentAssisted2PointMade",
+        "percentUnassisted2PointMade",
+        "percentAssisted3PointMade",
+        "percentUnassisted3PointMade",
+        "percentAssistedFieldGoalsMade",
+        "percentUnassistedFieldGoalsMade",
+        "freeThrowAttemptRate",
+        "opponentEffectiveFieldGoalPercentage",
+        "opponentFreeThrowAttemptRate",
+        "opponentTurnoverPercentage",
+        "opponentOffensiveReboundPercentage"
+      ],
+      "null_counts": {
+        "gameId": 0,
+        "gameDateTimeEst": 0,
+        "gameType": 7510,
+        "gameLabel": 74502,
+        "gameSubLabel": 74584,
+        "seriesGameNumber": 75018,
+        "teamId": 0,
+        "teamCity": 14,
+        "teamName": 0,
+        "opponentTeamId": 0,
+        "opponentTeamCity": 14,
+        "opponentTeamName": 0,
+        "home": 0,
+        "win": 0,
+        "teamScore": 0,
+        "opponentScore": 0,
+        "seed": 74930,
+        "numMinutes": 4,
+        "assists": 0,
+        "steals": 0,
+        "blocks": 0,
+        "blocksAgainst": 0,
+        "fieldGoalsMade": 0,
+        "fieldGoalsAttempted": 0,
+        "fieldGoalsPercentage": 0,
+        "threePointersMade": 0,
+        "threePointersAttempted": 0,
+        "threePointersPercentage": 0,
+        "freeThrowsMade": 0,
+        "freeThrowsAttempted": 0,
+        "freeThrowsPercentage": 0,
+        "reboundsOffensive": 0,
+        "reboundsDefensive": 0,
+        "reboundsTotal": 0,
+        "reboundsTeam": 7510,
+        "foulsPersonal": 0,
+        "personalFoulsDrawn": 0,
+        "turnovers": 0,
+        "turnoversTeam": 7510,
+        "plusMinusPoints": 54,
+        "q1Points": 7234,
+        "q2Points": 7246,
+        "q3Points": 7250,
+        "q4Points": 7250,
+        "ot1Points": 75410,
+        "ot2Points": 79124,
+        "otAllPoints": 75410,
+        "benchPoints": 7234,
+        "biggestLead": 7234,
+        "biggestScoringRun": 7234,
+        "leadChanges": 7234,
+        "pointsFastBreak": 7234,
+        "pointsFromTurnovers": 7234,
+        "pointsInThePaint": 7234,
+        "pointsSecondChance": 7234,
+        "timesTied": 7234,
+        "timeoutsRemaining": 7234,
+        "seasonWins": 7234,
+        "seasonLosses": 7234,
+        "estimatedOffensiveRating": 0,
+        "offensiveRating": 0,
+        "estimatedDefensiveRating": 0,
+        "defensiveRating": 0,
+        "estimatedNetRating": 0,
+        "netRating": 0,
+        "assistPercentage": 0,
+        "assistToTurnoverRatio": 0,
+        "assistRatio": 0,
+        "offensiveReboundPercentage": 7797,
+        "defensiveReboundPercentage": 7794,
+        "reboundPercentage": 14457,
+        "teamTurnoverPercentage": 0,
+        "effectiveFieldGoalPercentage": 0,
+        "trueShootingPercentage": 0,
+        "estimatedPace": 0,
+        "pace": 0,
+        "pacePer40": 0,
+        "possessions": 0,
+        "playerImpactEstimate": 0,
+        "pointsOffTurnovers": 0,
+        "opponentPointsOffTurnovers": 0,
+        "opponentPointsSecondChance": 0,
+        "opponentPointsFastBreak": 0,
+        "opponentPointsInPaint": 0,
+        "percentFieldGoalAttempts2Point": 0,
+        "percentFieldGoalAttempts3Point": 0,
+        "percentPoints2Point": 0,
+        "percentPoints2PointMidRange": 0,
+        "percentPoints3Point": 0,
+        "percentPointsFastBreak": 0,
+        "percentPointsFreeThrow": 0,
+        "percentPointsOffTurnovers": 0,
+        "percentPointsInPaint": 0,
+        "percentAssisted2PointMade": 0,
+        "percentUnassisted2PointMade": 0,
+        "percentAssisted3PointMade": 0,
+        "percentUnassisted3PointMade": 0,
+        "percentAssistedFieldGoalsMade": 0,
+        "percentUnassistedFieldGoalsMade": 0,
+        "freeThrowAttemptRate": 0,
+        "opponentEffectiveFieldGoalPercentage": 0,
+        "opponentFreeThrowAttemptRate": 0,
+        "opponentTurnoverPercentage": 0,
+        "opponentOffensiveReboundPercentage": 7794
+      },
+      "date_range": {
+        "first_date": "1996-11-01 19:00:00",
+        "last_date": "2026-06-13 20:30:00",
+        "invalid_dates": 0
+      },
+      "key": [
+        "gameId",
+        "teamId"
+      ],
+      "duplicate_keys": {
+        "duplicate_groups": 0,
+        "excess_rows": 0
+      },
+      "duplicate_examples": []
+    },
+    "schedule_2024": {
+      "file": "LeagueSchedule24_25.csv",
+      "rows": 1408,
+      "columns": [
+        "gameId",
+        "gameDateTimeEst",
+        "gameDay",
+        "arenaCity",
+        "arenaState",
+        "arenaName",
+        "gameLabel",
+        "gameSubLabel",
+        "gameSubtype",
+        "gameSequence",
+        "seriesGameNumber",
+        "seriesText",
+        "weekNumber",
+        "hometeamId",
+        "awayteamId"
+      ],
+      "null_counts": {
+        "gameId": 0,
+        "gameDateTimeEst": 0,
+        "gameDay": 0,
+        "arenaCity": 0,
+        "arenaState": 8,
+        "arenaName": 0,
+        "gameLabel": 1161,
+        "gameSubLabel": 1242,
+        "gameSubtype": 1331,
+        "gameSequence": 0,
+        "seriesGameNumber": 1324,
+        "seriesText": 1305,
+        "weekNumber": 0,
+        "hometeamId": 0,
+        "awayteamId": 0
+      },
+      "date_range": {
+        "first_date": "2024-10-04 12:00:00+00:00",
+        "last_date": "2025-10-17T22:30:00Z",
+        "invalid_dates": 0
+      },
+      "key": [
+        "gameId"
+      ],
+      "duplicate_keys": {
+        "duplicate_groups": 0,
+        "excess_rows": 0
+      },
+      "duplicate_examples": []
+    },
+    "schedule_2025": {
+      "file": "LeagueSchedule25_26.csv",
+      "rows": 1400,
+      "columns": [
+        "gameId",
+        "gameDateTimeEst",
+        "gameDay",
+        "homeTeamId",
+        "awayTeamId",
+        "homeTeamName",
+        "homeTeamCity",
+        "awayTeamName",
+        "awayTeamCity",
+        "arenaName",
+        "arenaCity",
+        "arenaState",
+        "gameLabel",
+        "gameSubLabel",
+        "gameSubtype",
+        "seriesGameNumber",
+        "weekNumber"
+      ],
+      "null_counts": {
+        "gameId": 0,
+        "gameDateTimeEst": 0,
+        "gameDay": 0,
+        "homeTeamId": 0,
+        "awayTeamId": 0,
+        "homeTeamName": 0,
+        "homeTeamCity": 7,
+        "awayTeamName": 0,
+        "awayTeamCity": 7,
+        "arenaName": 0,
+        "arenaCity": 0,
+        "arenaState": 9,
+        "gameLabel": 1149,
+        "gameSubLabel": 1230,
+        "gameSubtype": 1326,
+        "seriesGameNumber": 1315,
+        "weekNumber": 0
+      },
+      "date_range": {
+        "first_date": "2025-10-02 12:00:00",
+        "last_date": "2026-06-13 20:30:00",
+        "invalid_dates": 0
+      },
+      "key": [
+        "gameId"
+      ],
+      "duplicate_keys": {
+        "duplicate_groups": 0,
+        "excess_rows": 0
+      },
+      "duplicate_examples": []
+    },
+    "play_by_play": {
+      "schema": [
+        {
+          "column_name": "clock",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "actionType",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "description",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "playerFullName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "teamTricode",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "gameId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "gameDateTimeEst",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "periodType",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "period",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "shortFormattedClock",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "timeActual",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "actionNumber",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "orderNumber",
+          "column_type": "BIGINT",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "actionId",
+          "column_type": "BIGINT",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "teamId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "side",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "location",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "playerteamCity",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "playerteamName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "opponentteamCity",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "opponentteamName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "scoreHome",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "scoreAway",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "possession",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "isTargetScoreLastPeriod",
+          "column_type": "BOOLEAN",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "subType",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "descriptor",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "qualifiers",
+          "column_type": "VARCHAR[]",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "edited",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "value",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "personId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "playerName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "playerNameI",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jerseyNumber",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "x",
+          "column_type": "DOUBLE",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "y",
+          "column_type": "DOUBLE",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "xLegacy",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "yLegacy",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "area",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "areaDetail",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "isFieldGoal",
+          "column_type": "BOOLEAN",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "shotDistance",
+          "column_type": "DOUBLE",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "shotValue",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "shotResult",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "pointsTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "shotActionNumber",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "assistPersonId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "assistFullName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "assistPlayerName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "assistPlayerNameInitial",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "assistTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "reboundTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "reboundDefensiveTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "reboundOffensiveTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "turnoverTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "stealPersonId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "stealFullName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "stealPlayerName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "stealTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "foulPersonalTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "foulTechnicalTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "foulDrawnPersonId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "foulDrawnFullName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "foulDrawnPlayerName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "blockPersonId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "blockFullName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "blockPlayerName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "blockTotal",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallRecoveredName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallRecoveredPersonId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallRecoveredFullName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallWonPersonId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallWonFullName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallWonPlayerName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallLostPersonId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallLostFullName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallLostPlayerName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "subsInPersonId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "subsInFullName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "subsInPlayerName",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "officialId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "videoAvailable",
+          "column_type": "BOOLEAN",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "personIdsFilter",
+          "column_type": "VARCHAR[]",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "gameType",
+          "column_type": "INTEGER",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "playerteamId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "opponentteamId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "jumpBallRecoverdPersonId",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "gameDateTimeEst_g",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        },
+        {
+          "column_name": "gameType_g",
+          "column_type": "VARCHAR",
+          "null": "YES",
+          "key": null,
+          "default": null,
+          "extra": null
+        }
+      ],
+      "rows": 18727295,
+      "sample": [
+        {
+          "clock": "PT12M00.00S",
+          "actionType": "period",
+          "description": "Period Start",
+          "playerFullName": null,
+          "teamTricode": null,
+          "gameId": "42500151",
+          "gameDateTimeEst": "2026-04-19 21:00:00",
+          "periodType": "REGULAR",
+          "period": 1,
+          "shortFormattedClock": null,
+          "timeActual": "2026-04-20T01:17:50.1Z",
+          "actionNumber": 2,
+          "orderNumber": 20000,
+          "actionId": null,
+          "teamId": null,
+          "side": null,
+          "location": null,
+          "playerteamCity": null,
+          "playerteamName": null,
+          "opponentteamCity": null,
+          "opponentteamName": null,
+          "scoreHome": 0,
+          "scoreAway": 0,
+          "possession": "0",
+          "isTargetScoreLastPeriod": false,
+          "subType": "start",
+          "descriptor": null,
+          "qualifiers": [],
+          "edited": "2026-04-20T01:17:50Z",
+          "value": null,
+          "personId": "0",
+          "playerName": null,
+          "playerNameI": null,
+          "jerseyNumber": null,
+          "x": null,
+          "y": null,
+          "xLegacy": null,
+          "yLegacy": null,
+          "area": null,
+          "areaDetail": null,
+          "isFieldGoal": false,
+          "shotDistance": null,
+          "shotValue": null,
+          "shotResult": null,
+          "pointsTotal": null,
+          "shotActionNumber": null,
+          "assistPersonId": null,
+          "assistFullName": null,
+          "assistPlayerName": null,
+          "assistPlayerNameInitial": null,
+          "assistTotal": null,
+          "reboundTotal": null,
+          "reboundDefensiveTotal": null,
+          "reboundOffensiveTotal": null,
+          "turnoverTotal": null,
+          "stealPersonId": null,
+          "stealFullName": null,
+          "stealPlayerName": null,
+          "stealTotal": null,
+          "foulPersonalTotal": null,
+          "foulTechnicalTotal": null,
+          "foulDrawnPersonId": null,
+          "foulDrawnFullName": null,
+          "foulDrawnPlayerName": null,
+          "blockPersonId": null,
+          "blockFullName": null,
+          "blockPlayerName": null,
+          "blockTotal": null,
+          "jumpBallRecoveredName": null,
+          "jumpBallRecoveredPersonId": null,
+          "jumpBallRecoveredFullName": null,
+          "jumpBallWonPersonId": null,
+          "jumpBallWonFullName": null,
+          "jumpBallWonPlayerName": null,
+          "jumpBallLostPersonId": null,
+          "jumpBallLostFullName": null,
+          "jumpBallLostPlayerName": null,
+          "subsInPersonId": null,
+          "subsInFullName": null,
+          "subsInPlayerName": null,
+          "officialId": null,
+          "videoAvailable": null,
+          "personIdsFilter": [],
+          "gameType": null,
+          "playerteamId": null,
+          "opponentteamId": null,
+          "jumpBallRecoverdPersonId": null,
+          "gameDateTimeEst_g": null,
+          "gameType_g": null
+        },
+        {
+          "clock": "PT11M56.00S",
+          "actionType": "jumpball",
+          "description": "Jump Ball V. Wembanyama vs. D. Clingan: Tip to J. Champagnie",
+          "playerFullName": "Julian Champagnie",
+          "teamTricode": "SAS",
+          "gameId": "42500151",
+          "gameDateTimeEst": "2026-04-19 21:00:00",
+          "periodType": "REGULAR",
+          "period": 1,
+          "shortFormattedClock": null,
+          "timeActual": "2026-04-20T01:17:52.7Z",
+          "actionNumber": 4,
+          "orderNumber": 40000,
+          "actionId": null,
+          "teamId": "1610612759",
+          "side": null,
+          "location": null,
+          "playerteamCity": "San Antonio",
+          "playerteamName": "Spurs",
+          "opponentteamCity": "Portland",
+          "opponentteamName": "Trail Blazers",
+          "scoreHome": 0,
+          "scoreAway": 0,
+          "possession": "1610612759",
+          "isTargetScoreLastPeriod": false,
+          "subType": "recovered",
+          "descriptor": "startperiod",
+          "qualifiers": [],
+          "edited": "2026-04-20T01:17:52Z",
+          "value": null,
+          "personId": "1630577",
+          "playerName": "Champagnie",
+          "playerNameI": "J. Champagnie",
+          "jerseyNumber": null,
+          "x": null,
+          "y": null,
+          "xLegacy": null,
+          "yLegacy": null,
+          "area": null,
+          "areaDetail": null,
+          "isFieldGoal": false,
+          "shotDistance": null,
+          "shotValue": null,
+          "shotResult": null,
+          "pointsTotal": null,
+          "shotActionNumber": null,
+          "assistPersonId": null,
+          "assistFullName": null,
+          "assistPlayerName": null,
+          "assistPlayerNameInitial": null,
+          "assistTotal": null,
+          "reboundTotal": null,
+          "reboundDefensiveTotal": null,
+          "reboundOffensiveTotal": null,
+          "turnoverTotal": null,
+          "stealPersonId": null,
+          "stealFullName": null,
+          "stealPlayerName": null,
+          "stealTotal": null,
+          "foulPersonalTotal": null,
+          "foulTechnicalTotal": null,
+          "foulDrawnPersonId": null,
+          "foulDrawnFullName": null,
+          "foulDrawnPlayerName": null,
+          "blockPersonId": null,
+          "blockFullName": null,
+          "blockPlayerName": null,
+          "blockTotal": null,
+          "jumpBallRecoveredName": "J. Champagnie",
+          "jumpBallRecoveredPersonId": null,
+          "jumpBallRecoveredFullName": null,
+          "jumpBallWonPersonId": "1641705",
+          "jumpBallWonFullName": "Victor Wembanyama",
+          "jumpBallWonPlayerName": "Wembanyama",
+          "jumpBallLostPersonId": "1642270",
+          "jumpBallLostFullName": "Donovan Clingan",
+          "jumpBallLostPlayerName": "Clingan",
+          "subsInPersonId": null,
+          "subsInFullName": null,
+          "subsInPlayerName": null,
+          "officialId": null,
+          "videoAvailable": null,
+          "personIdsFilter": [
+            "1630577",
+            "1641705",
+            "1642270"
+          ],
+          "gameType": null,
+          "playerteamId": null,
+          "opponentteamId": null,
+          "jumpBallRecoverdPersonId": null,
+          "gameDateTimeEst_g": null,
+          "gameType_g": null
+        }
+      ]
+    }
+  },
+  "categories": {
+    "games.gameType": [
+      {
+        "category": "Regular Season",
+        "n": 66768
+      },
+      {
+        "category": "Playoffs",
+        "n": 4526
+      },
+      {
+        "category": "Preseason",
+        "n": 1873
+      },
+      {
+        "category": "NBA Emirates Cup",
+        "n": 66
+      },
+      {
+        "category": "Play-in Tournament",
+        "n": 37
+      },
+      {
+        "category": "All-Star Game",
+        "n": 7
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 1
+      },
+      {
+        "category": "NBA Cup",
+        "n": 1
+      }
+    ],
+    "games.gameLabel": [
+      {
+        "category": null,
+        "n": 69236
+      },
+      {
+        "category": "West - First Round",
+        "n": 644
+      },
+      {
+        "category": "East - First Round",
+        "n": 620
+      },
+      {
+        "category": "East - Conf. Semifinals",
+        "n": 565
+      },
+      {
+        "category": "West - Conf. Semifinals",
+        "n": 553
+      },
+      {
+        "category": "NBA Finals",
+        "n": 358
+      },
+      {
+        "category": "East - Conf. Finals",
+        "n": 345
+      },
+      {
+        "category": "West - Conf. Finals",
+        "n": 321
+      },
+      {
+        "category": "Preseason",
+        "n": 204
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 201
+      },
+      {
+        "category": "East First Round",
+        "n": 47
+      },
+      {
+        "category": "West First Round",
+        "n": 44
+      },
+      {
+        "category": "West Conf. Semifinals",
+        "n": 22
+      },
+      {
+        "category": "East Conf. Semifinals",
+        "n": 22
+      },
+      {
+        "category": "SoFi Play-In Tournament",
+        "n": 12
+      },
+      {
+        "category": "West Conf. Finals",
+        "n": 12
+      },
+      {
+        "category": "West Play-In",
+        "n": 12
+      },
+      {
+        "category": "East Play-In",
+        "n": 12
+      },
+      {
+        "category": "AWS NBA Rivals Week",
+        "n": 11
+      },
+      {
+        "category": "East Conf. Finals",
+        "n": 10
+      },
+      {
+        "category": "East -",
+        "n": 6
+      },
+      {
+        "category": "West -",
+        "n": 5
+      },
+      {
+        "category": "NBA Mexico City Game",
+        "n": 3
+      },
+      {
+        "category": "All-Star",
+        "n": 3
+      },
+      {
+        "category": "Rising Stars Semifinal",
+        "n": 2
+      },
+      {
+        "category": "NBA Paris Games",
+        "n": 2
+      },
+      {
+        "category": "NBA London Game",
+        "n": 1
+      },
+      {
+        "category": "NBA Berlin Game",
+        "n": 1
+      },
+      {
+        "category": "NBA Pioneers Classic",
+        "n": 1
+      },
+      {
+        "category": "All-Star Championship",
+        "n": 1
+      }
+    ],
+    "games.seriesGameNumber": [
+      {
+        "category": null,
+        "n": 67456
+      },
+      {
+        "category": "0.0",
+        "n": 1297
+      },
+      {
+        "category": "2.0",
+        "n": 872
+      },
+      {
+        "category": "1.0",
+        "n": 872
+      },
+      {
+        "category": "3.0",
+        "n": 841
+      },
+      {
+        "category": "4.0",
+        "n": 756
+      },
+      {
+        "category": "5.0",
+        "n": 593
+      },
+      {
+        "category": "6.0",
+        "n": 353
+      },
+      {
+        "category": "7.0",
+        "n": 154
+      },
+      {
+        "category": "Game 4",
+        "n": 15
+      },
+      {
+        "category": "Game 1",
+        "n": 15
+      },
+      {
+        "category": "Game 2",
+        "n": 15
+      },
+      {
+        "category": "Game 3",
+        "n": 15
+      },
+      {
+        "category": "Game 5",
+        "n": 11
+      },
+      {
+        "category": "Game 6",
+        "n": 9
+      },
+      {
+        "category": "Game 7",
+        "n": 5
+      }
+    ],
+    "player_stats.gameType": [
+      {
+        "category": "Regular Season",
+        "n": 1502661
+      },
+      {
+        "category": "Playoffs",
+        "n": 102249
+      },
+      {
+        "category": "Preseason",
+        "n": 57118
+      },
+      {
+        "category": "Pre Season",
+        "n": 3513
+      },
+      {
+        "category": "NBA Emirates Cup",
+        "n": 1759
+      },
+      {
+        "category": "All-Star Game",
+        "n": 1511
+      },
+      {
+        "category": "Play-in Tournament",
+        "n": 998
+      },
+      {
+        "category": null,
+        "n": 50
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 30
+      },
+      {
+        "category": "NBA Cup",
+        "n": 28
+      },
+      {
+        "category": "in-season-knockout",
+        "n": 5
+      }
+    ],
+    "player_stats.gameLabel": [
+      {
+        "category": null,
+        "n": 1552474
+      },
+      {
+        "category": "West - First Round",
+        "n": 19846
+      },
+      {
+        "category": "East - First Round",
+        "n": 19287
+      },
+      {
+        "category": "East - Conf. Semifinals",
+        "n": 15560
+      },
+      {
+        "category": "West - Conf. Semifinals",
+        "n": 15466
+      },
+      {
+        "category": "NBA Finals",
+        "n": 9213
+      },
+      {
+        "category": "East - Conf. Finals",
+        "n": 8993
+      },
+      {
+        "category": "West - Conf. Finals",
+        "n": 8411
+      },
+      {
+        "category": "Preseason",
+        "n": 7607
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 5323
+      },
+      {
+        "category": "East First Round",
+        "n": 1345
+      },
+      {
+        "category": "All-Star Game",
+        "n": 1343
+      },
+      {
+        "category": "West First Round",
+        "n": 1225
+      },
+      {
+        "category": "East Conf. Semifinals",
+        "n": 642
+      },
+      {
+        "category": "West Conf. Semifinals",
+        "n": 620
+      },
+      {
+        "category": "West Conf. Finals",
+        "n": 338
+      },
+      {
+        "category": "SoFi Play-In Tournament",
+        "n": 328
+      },
+      {
+        "category": "East Play-In",
+        "n": 326
+      },
+      {
+        "category": "West Play-In",
+        "n": 319
+      },
+      {
+        "category": "East Conf. Finals",
+        "n": 299
+      },
+      {
+        "category": "AWS NBA Rivals Week",
+        "n": 289
+      },
+      {
+        "category": "East - ",
+        "n": 115
+      },
+      {
+        "category": "West - ",
+        "n": 93
+      },
+      {
+        "category": "NBA Mexico City Game",
+        "n": 81
+      },
+      {
+        "category": "NBA Paris Games",
+        "n": 58
+      },
+      {
+        "category": "All-Star",
+        "n": 56
+      },
+      {
+        "category": "All-Star Championship",
+        "n": 35
+      },
+      {
+        "category": "All-Star Semifinal",
+        "n": 34
+      },
+      {
+        "category": "Rising Stars Semifinal",
+        "n": 29
+      },
+      {
+        "category": "NBA Berlin Game",
+        "n": 26
+      }
+    ],
+    "player_stats.seriesGameNumber": [
+      {
+        "category": null,
+        "n": 1532465
+      },
+      {
+        "category": "0.0",
+        "n": 35208
+      },
+      {
+        "category": "1.0",
+        "n": 19633
+      },
+      {
+        "category": "2.0",
+        "n": 19461
+      },
+      {
+        "category": "3.0",
+        "n": 18790
+      },
+      {
+        "category": "4.0",
+        "n": 17018
+      },
+      {
+        "category": "5.0",
+        "n": 13480
+      },
+      {
+        "category": "6.0",
+        "n": 8040
+      },
+      {
+        "category": "7.0",
+        "n": 3418
+      },
+      {
+        "category": "4",
+        "n": 427
+      },
+      {
+        "category": "2",
+        "n": 426
+      },
+      {
+        "category": "3",
+        "n": 423
+      },
+      {
+        "category": "5",
+        "n": 312
+      },
+      {
+        "category": "6",
+        "n": 252
+      },
+      {
+        "category": "Game 1",
+        "n": 226
+      },
+      {
+        "category": "1",
+        "n": 201
+      },
+      {
+        "category": "7",
+        "n": 142
+      }
+    ],
+    "team_stats.gameType": [
+      {
+        "category": "Regular Season",
+        "n": 130014
+      },
+      {
+        "category": "Playoffs",
+        "n": 8878
+      },
+      {
+        "category": null,
+        "n": 7590
+      },
+      {
+        "category": "Play-in Tournament",
+        "n": 62
+      },
+      {
+        "category": "All-Star Game",
+        "n": 14
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 2
+      }
+    ],
+    "team_stats.gameLabel": [
+      {
+        "category": null,
+        "n": 137250
+      },
+      {
+        "category": "West - First Round",
+        "n": 1634
+      },
+      {
+        "category": "East - First Round",
+        "n": 1594
+      },
+      {
+        "category": "East - Conf. Semifinals",
+        "n": 1398
+      },
+      {
+        "category": "West - Conf. Semifinals",
+        "n": 1376
+      },
+      {
+        "category": "NBA Finals",
+        "n": 850
+      },
+      {
+        "category": "East - Conf. Finals",
+        "n": 824
+      },
+      {
+        "category": "West - Conf. Finals",
+        "n": 782
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 400
+      },
+      {
+        "category": "East First Round",
+        "n": 94
+      },
+      {
+        "category": "West First Round",
+        "n": 88
+      },
+      {
+        "category": "East Conf. Semifinals",
+        "n": 44
+      },
+      {
+        "category": "West Conf. Semifinals",
+        "n": 44
+      },
+      {
+        "category": "SoFi Play-In Tournament",
+        "n": 24
+      },
+      {
+        "category": "West Conf. Finals",
+        "n": 24
+      },
+      {
+        "category": "AWS NBA Rivals Week",
+        "n": 22
+      },
+      {
+        "category": "East Conf. Finals",
+        "n": 20
+      },
+      {
+        "category": "West Play-In",
+        "n": 18
+      },
+      {
+        "category": "East Play-In",
+        "n": 18
+      },
+      {
+        "category": "East - ",
+        "n": 12
+      },
+      {
+        "category": "West - ",
+        "n": 10
+      },
+      {
+        "category": "NBA Mexico City Game",
+        "n": 6
+      },
+      {
+        "category": "All-Star",
+        "n": 6
+      },
+      {
+        "category": "NBA Paris Games",
+        "n": 4
+      },
+      {
+        "category": "Rising Stars Semifinal",
+        "n": 4
+      },
+      {
+        "category": "NBA Berlin Game",
+        "n": 2
+      },
+      {
+        "category": "NBA Pioneers Classic",
+        "n": 2
+      },
+      {
+        "category": "Rising Stars Final",
+        "n": 2
+      },
+      {
+        "category": "NBA London Game",
+        "n": 2
+      },
+      {
+        "category": "All-Star Championship",
+        "n": 2
+      }
+    ],
+    "team_stats.seriesGameNumber": [
+      {
+        "category": null,
+        "n": 137682
+      },
+      {
+        "category": "1",
+        "n": 1448
+      },
+      {
+        "category": "2",
+        "n": 1438
+      },
+      {
+        "category": "3",
+        "n": 1384
+      },
+      {
+        "category": "4",
+        "n": 1324
+      },
+      {
+        "category": "5",
+        "n": 1110
+      },
+      {
+        "category": "6",
+        "n": 824
+      },
+      {
+        "category": "7",
+        "n": 506
+      },
+      {
+        "category": "8",
+        "n": 286
+      },
+      {
+        "category": "9",
+        "n": 286
+      },
+      {
+        "category": "0",
+        "n": 272
+      }
+    ],
+    "player_extended.gameType": [
+      {
+        "category": "Regular Season",
+        "n": 734869
+      },
+      {
+        "category": "Playoffs",
+        "n": 50355
+      },
+      {
+        "category": "Preseason",
+        "n": 47605
+      },
+      {
+        "category": "Pre Season",
+        "n": 2999
+      },
+      {
+        "category": "NBA Emirates Cup",
+        "n": 1397
+      },
+      {
+        "category": "All-Star Game",
+        "n": 794
+      },
+      {
+        "category": "Play-in Tournament",
+        "n": 766
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 18
+      }
+    ],
+    "player_extended.gameLabel": [
+      {
+        "category": null,
+        "n": 776341
+      },
+      {
+        "category": "West - First Round",
+        "n": 12129
+      },
+      {
+        "category": "East - First Round",
+        "n": 11726
+      },
+      {
+        "category": "West - Conf. Semifinals",
+        "n": 6548
+      },
+      {
+        "category": "East - Conf. Semifinals",
+        "n": 6522
+      },
+      {
+        "category": "Preseason",
+        "n": 5840
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 4249
+      },
+      {
+        "category": "NBA Finals",
+        "n": 3513
+      },
+      {
+        "category": "East - Conf. Finals",
+        "n": 3394
+      },
+      {
+        "category": "West - Conf. Finals",
+        "n": 3058
+      },
+      {
+        "category": "East First Round",
+        "n": 1016
+      },
+      {
+        "category": "West First Round",
+        "n": 957
+      },
+      {
+        "category": "All-Star Game",
+        "n": 645
+      },
+      {
+        "category": "East Conf. Semifinals",
+        "n": 500
+      },
+      {
+        "category": "West Conf. Semifinals",
+        "n": 487
+      },
+      {
+        "category": "West Conf. Finals",
+        "n": 287
+      },
+      {
+        "category": "SoFi Play-In Tournament",
+        "n": 256
+      },
+      {
+        "category": "East Play-In",
+        "n": 254
+      },
+      {
+        "category": "West Play-In",
+        "n": 238
+      },
+      {
+        "category": "AWS NBA Rivals Week",
+        "n": 228
+      },
+      {
+        "category": "East Conf. Finals",
+        "n": 218
+      },
+      {
+        "category": "NBA Mexico City Game",
+        "n": 67
+      },
+      {
+        "category": "NBA Paris Games",
+        "n": 55
+      },
+      {
+        "category": "All-Star",
+        "n": 48
+      },
+      {
+        "category": "All-Star Semifinal",
+        "n": 30
+      },
+      {
+        "category": "All-Star Championship",
+        "n": 30
+      },
+      {
+        "category": "Rising Stars Semifinal",
+        "n": 28
+      },
+      {
+        "category": "NBA Pioneers Classic",
+        "n": 24
+      },
+      {
+        "category": "NBA London Game",
+        "n": 23
+      },
+      {
+        "category": "NBA Berlin Game",
+        "n": 20
+      }
+    ],
+    "player_extended.seriesGameNumber": [
+      {
+        "category": null,
+        "n": 760246
+      },
+      {
+        "category": "0.0",
+        "n": 28202
+      },
+      {
+        "category": "2.0",
+        "n": 9090
+      },
+      {
+        "category": "1.0",
+        "n": 9045
+      },
+      {
+        "category": "3.0",
+        "n": 8985
+      },
+      {
+        "category": "4.0",
+        "n": 8530
+      },
+      {
+        "category": "5.0",
+        "n": 6888
+      },
+      {
+        "category": "6.0",
+        "n": 4265
+      },
+      {
+        "category": "7.0",
+        "n": 1631
+      },
+      {
+        "category": "4",
+        "n": 355
+      },
+      {
+        "category": "3",
+        "n": 337
+      },
+      {
+        "category": "2",
+        "n": 326
+      },
+      {
+        "category": "5",
+        "n": 250
+      },
+      {
+        "category": "6",
+        "n": 214
+      },
+      {
+        "category": "Game 1",
+        "n": 179
+      },
+      {
+        "category": "1",
+        "n": 152
+      },
+      {
+        "category": "7",
+        "n": 108
+      }
+    ],
+    "team_extended.gameType": [
+      {
+        "category": "Regular Season",
+        "n": 67430
+      },
+      {
+        "category": null,
+        "n": 7510
+      },
+      {
+        "category": "Playoffs",
+        "n": 4706
+      },
+      {
+        "category": "Play-in Tournament",
+        "n": 62
+      },
+      {
+        "category": "All-Star Game",
+        "n": 14
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 2
+      }
+    ],
+    "team_extended.gameLabel": [
+      {
+        "category": null,
+        "n": 74502
+      },
+      {
+        "category": "West - First Round",
+        "n": 1126
+      },
+      {
+        "category": "East - First Round",
+        "n": 1106
+      },
+      {
+        "category": "East - Conf. Semifinals",
+        "n": 618
+      },
+      {
+        "category": "West - Conf. Semifinals",
+        "n": 606
+      },
+      {
+        "category": "Emirates NBA Cup",
+        "n": 400
+      },
+      {
+        "category": "NBA Finals",
+        "n": 326
+      },
+      {
+        "category": "East - Conf. Finals",
+        "n": 320
+      },
+      {
+        "category": "West - Conf. Finals",
+        "n": 290
+      },
+      {
+        "category": "East First Round",
+        "n": 94
+      },
+      {
+        "category": "West First Round",
+        "n": 88
+      },
+      {
+        "category": "East Conf. Semifinals",
+        "n": 44
+      },
+      {
+        "category": "West Conf. Semifinals",
+        "n": 44
+      },
+      {
+        "category": "SoFi Play-In Tournament",
+        "n": 24
+      },
+      {
+        "category": "West Conf. Finals",
+        "n": 24
+      },
+      {
+        "category": "AWS NBA Rivals Week",
+        "n": 22
+      },
+      {
+        "category": "East Conf. Finals",
+        "n": 20
+      },
+      {
+        "category": "East Play-In",
+        "n": 18
+      },
+      {
+        "category": "West Play-In",
+        "n": 18
+      },
+      {
+        "category": "NBA Mexico City Game",
+        "n": 6
+      },
+      {
+        "category": "All-Star",
+        "n": 6
+      },
+      {
+        "category": "Rising Stars Semifinal",
+        "n": 4
+      },
+      {
+        "category": "NBA Paris Games",
+        "n": 4
+      },
+      {
+        "category": "NBA Berlin Game",
+        "n": 2
+      },
+      {
+        "category": "NBA London Game",
+        "n": 2
+      },
+      {
+        "category": "Rising Stars Final",
+        "n": 2
+      },
+      {
+        "category": "NBA Pioneers Classic",
+        "n": 2
+      },
+      {
+        "category": "All-Star Championship",
+        "n": 2
+      },
+      {
+        "category": "NBA Paris Game",
+        "n": 2
+      },
+      {
+        "category": "NBA Cup",
+        "n": 2
+      }
+    ],
+    "team_extended.seriesGameNumber": [
+      {
+        "category": null,
+        "n": 75018
+      },
+      {
+        "category": "3",
+        "n": 798
+      },
+      {
+        "category": "2",
+        "n": 798
+      },
+      {
+        "category": "4",
+        "n": 790
+      },
+      {
+        "category": "1",
+        "n": 790
+      },
+      {
+        "category": "5",
+        "n": 654
+      },
+      {
+        "category": "6",
+        "n": 462
+      },
+      {
+        "category": "7",
+        "n": 214
+      },
+      {
+        "category": "8",
+        "n": 70
+      },
+      {
+        "category": "9",
+        "n": 68
+      },
+      {
+        "category": "0",
+        "n": 62
+      }
+    ],
+    "team_histories.league": [
+      {
+        "league": "NBA",
+        "n": 72
+      },
+      {
+        "league": "EuroLeague",
+        "n": 21
+      },
+      {
+        "league": "NBB",
+        "n": 1
+      },
+      {
+        "league": "Liga Nacional",
+        "n": 2
+      },
+      {
+        "league": "LBA",
+        "n": 3
+      },
+      {
+        "league": "NBL",
+        "n": 10
+      },
+      {
+        "league": "VTB United League",
+        "n": 1
+      },
+      {
+        "league": "Liga ACB",
+        "n": 1
+      },
+      {
+        "league": "BAA",
+        "n": 19
+      },
+      {
+        "league": "CBA",
+        "n": 5
+      },
+      {
+        "league": "EuroCup",
+        "n": 3
+      },
+      {
+        "league": "Israeli Premier League",
+        "n": 2
+      }
+    ],
+    "game_id_prefix": [
+      {
+        "prefix": "001",
+        "n": 1873,
+        "first_date": "2003-10-05 18:00:00",
+        "last_date": "2025-10-17 22:30:00"
+      },
+      {
+        "prefix": "002",
+        "n": 66833,
+        "first_date": "1946-11-26 19:00:00",
+        "last_date": "2026-04-12 20:30:00"
+      },
+      {
+        "prefix": "003",
+        "n": 7,
+        "first_date": "2026-02-13 21:00:00",
+        "last_date": "2026-02-15 19:10:00"
+      },
+      {
+        "prefix": "004",
+        "n": 4526,
+        "first_date": "1947-04-12 19:00:00",
+        "last_date": "2026-06-13 20:30:00"
+      },
+      {
+        "prefix": "005",
+        "n": 37,
+        "first_date": "2020-08-15 14:30:00",
+        "last_date": "2026-04-17 22:00:00"
+      },
+      {
+        "prefix": "006",
+        "n": 3,
+        "first_date": "2023-12-09 20:30:00",
+        "last_date": "2025-12-16 20:30:00"
+      }
+    ]
+  }
+}

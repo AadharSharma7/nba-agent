@@ -1,0 +1,19 @@
+[
+  {
+    "id": "elimination_unsupported",
+    "passed": true,
+    "status_matches": true,
+    "stats_match": true,
+    "query_matches": true,
+    "elapsed_seconds": 0.871,
+    "response": {
+      "session_id": "0d60515d-a71b-4139-a295-a7870aa19df8",
+      "turn_id": "5aabf4cc-301a-4b64-9c5d-ef4481450d17",
+      "status": "unsupported",
+      "answer": "This prototype currently supports historical NBA player statistics, game logs, playoff-series statistics, and player comparisons. I don't have the data tools to answer that question yet.",
+      "sources": [],
+      "data": [],
+      "model_calls": 1
+    }
+  }
+]

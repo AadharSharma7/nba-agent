@@ -1,0 +1,56 @@
+{
+  "verified_at": "2026-10-10T20:19:39.317831+00:00",
+  "python": "3.12.14",
+  "python_executable": "/Users/aadhar/nba-agent/.venv/bin/python",
+  "inside_venv": true,
+  "raw_file_hashes_match": {
+    "Games.csv": true,
+    "LeagueSchedule24_25.csv": true,
+    "LeagueSchedule25_26.csv": true,
+    "PlayByPlay.parquet": true,
+    "PlayerStatistics.csv": true,
+    "PlayerStatisticsExtended.csv": true,
+    "Players.csv": true,
+    "TeamHistories.csv": true,
+    "TeamStatistics.csv": true,
+    "TeamStatisticsExtended.csv": true
+  },
+  "sql_checks_executed_without_errors": 52,
+  "independent_csv_priority_aggregates_match": true,
+  "curry_external_core_matches": true,
+  "curry_external_minutes_matches": false,
+  "curry_source": {
+    "games": 7,
+    "points": 195.0,
+    "rebounds": 44.0,
+    "assists": 41.0,
+    "source_minutes": 254.0
+  },
+  "curry_reference": {
+    "games": 7,
+    "points": 195,
+    "rebounds": 44,
+    "assists": 41,
+    "displayed_mpg": 36.7,
+    "url": "https://www.statmuse.com/nba/ask/steph-curry-stats-2016-western-conference-finals-stats",
+    "checked_on": "2026-10-10",
+    "scope": "Core totals externally checked; minutes discrepancy retained, not repaired."
+  },
+  "jokic_embiid_source_totals": {
+    "203954": {
+      "games": 43,
+      "points": 1124.0,
+      "rebounds": 427.0,
+      "assists": 154.0,
+      "source_minutes": 1544.1666666666667
+    },
+    "203999": {
+      "games": 67,
+      "points": 1919.0,
+      "rebounds": 869.0,
+      "assists": 542.0,
+      "source_minutes": 2563.15
+    }
+  },
+  "external_validation_limits": "No exhaustive external certification of all games, career totals, advanced metrics or play-by-play."
+}

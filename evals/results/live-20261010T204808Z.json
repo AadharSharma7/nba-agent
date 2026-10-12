@@ -1,0 +1,107 @@
+[
+  {
+    "id": "ambiguous_name",
+    "passed": false,
+    "status_matches": false,
+    "stats_match": true,
+    "query_matches": true,
+    "elapsed_seconds": 3.575,
+    "response": {
+      "session_id": "d27951ee-dedc-491f-b659-abecba1d6246",
+      "turn_id": "bdf7cc7e-2d7e-4d51-a765-ed60692c05d7",
+      "status": "answer",
+      "answer": "LeBron James's regular-season career stats over 1621 games are as follows:\n- Points: 43,414 (26.78 points per game)\n- Rebounds: 12,088 (7.46 rebounds per game)\n- Assists: 12,005 (7.41 assists per game)\n- Minutes per game: 37.17\n- Steals per game: 1.49\n- Blocks per game: 0.73\n- Turnovers per game: 3.48\n- Field Goal Percentage: 50.67%\n- Three-Point Percentage: 34.84%\n- Free Throw Percentage: 73.70%\n\nThese stats cover his entire regular-season career from his first game on October 29, 2003, through April 12, 2026.",
+      "sources": [
+        {
+          "evidence_id": "305b1fd9f5619acb",
+          "id": "kaggle-v515",
+          "version": 515,
+          "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+          "max_game_date": "2026-06-13",
+          "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+        }
+      ],
+      "data": [
+        {
+          "status": "ok",
+          "evidence_id": "305b1fd9f5619acb",
+          "query": {
+            "players": [
+              "LeBron James"
+            ],
+            "season_start": null,
+            "season_end": null,
+            "phase": "regular",
+            "playoff_round": null,
+            "conference": null,
+            "opponent_team": null,
+            "opposing_player": null,
+            "home": null,
+            "date_from": null,
+            "date_to": null,
+            "last_n": null,
+            "group_by": "player",
+            "limit": 100
+          },
+          "players": [
+            {
+              "id": 2544,
+              "name": "LeBron James"
+            }
+          ],
+          "opponent": null,
+          "opposing_player": null,
+          "rows": [
+            {
+              "player_id": 2544,
+              "player_name": "LeBron James",
+              "games": 1621,
+              "first_game": "2003-10-29",
+              "last_game": "2026-04-12",
+              "points": 43414,
+              "rebounds": 12088,
+              "assists": 12005,
+              "ppg": 26.782233189389267,
+              "rpg": 7.45712523133868,
+              "apg": 7.405922270203578,
+              "mpg": 37.168143121529916,
+              "spg": 1.4904380012338063,
+              "bpg": 0.729796421961752,
+              "tpg": 3.4842689697717457,
+              "fgm": 15951,
+              "fga": 31480,
+              "fg3m": 2632,
+              "fg3a": 7554,
+              "ftm": 8880,
+              "fta": 12049,
+              "fg_pct": 50.670266836086405,
+              "three_pct": 34.842467566852,
+              "ft_pct": 73.69906216283509,
+              "points_games": 1621,
+              "rebounds_games": 1621,
+              "assists_games": 1621,
+              "minutes_games": 1621
+            }
+          ],
+          "truncated": false,
+          "players_without_returned_rows": [],
+          "source": {
+            "id": "kaggle-v515",
+            "version": 515,
+            "source_url": "https://www.kaggle.com/datasets/eoinamoore/historical-nba-data-and-player-box-scores",
+            "max_game_date": "2026-06-13",
+            "source_updated_at": "2026-06-15 04:08:10.510000-07:00"
+          },
+          "definitions": {
+            "season_start": "2020 denotes 2020\u201321; playoffs held in 2021.",
+            "percentages": "100 times total makes divided by total attempts; not mean game percentages.",
+            "opposing_player": "Both recorded appearances on opposing teams; not guarding or shared court time.",
+            "minutes": "Values supplied by the dataset.",
+            "last_n": "Last N matching appearances per player after other filters."
+          }
+        }
+      ],
+      "model_calls": 3
+    }
+  }
+]

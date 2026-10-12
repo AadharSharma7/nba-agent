@@ -1,0 +1,2 @@
+# Audit-only analytical dependency. No application or LLM dependencies yet.
+duckdb==1.5.6

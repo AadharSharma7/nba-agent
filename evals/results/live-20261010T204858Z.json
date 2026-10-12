@@ -1,0 +1,19 @@
+[
+  {
+    "id": "ambiguous_name",
+    "passed": false,
+    "status_matches": false,
+    "stats_match": true,
+    "query_matches": true,
+    "elapsed_seconds": 4.589,
+    "response": {
+      "session_id": "a07c39c5-4275-4680-b144-6bdcacfc1ce2",
+      "turn_id": "84de5b65-26d7-4cf9-ac66-9e640b4bd7b9",
+      "status": "error",
+      "answer": "I couldn't complete that NBA query. Please try again.",
+      "sources": [],
+      "data": [],
+      "model_calls": 5
+    }
+  }
+]
