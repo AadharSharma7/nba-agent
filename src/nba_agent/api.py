@@ -8,7 +8,7 @@ from starlette.responses import JSONResponse
 
 from nba_agent.config import Settings
 from nba_agent.database import make_pool, read_connection
-from nba_agent.domain import ChatRequest, ChatResponse, StatsQuery
+from nba_agent.domain import ChatRequest, ChatResponse, ModelMetricsPage, StatsQuery
 from nba_agent.queries import search_nba_data
 from nba_agent.service import ChatService, MissingAPIKey, UnknownSession
 
@@ -88,6 +88,8 @@ def create_app(settings: Settings | None = None, agents=None) -> FastAPI:
             session = await cur.fetchone()
             if not session:
                 raise HTTPException(404, "Session not found.")
+            if session["estimated_cost_usd"] is not None:
+                session["estimated_cost_usd"] = str(session["estimated_cost_usd"])
             cur = await conn.execute(
                 "SELECT * FROM message_details WHERE session_id=%s AND sequence_number>%s ORDER BY sequence_number LIMIT %s",
                 (session_id, after_sequence, limit + 1),
@@ -100,6 +102,28 @@ def create_app(settings: Settings | None = None, agents=None) -> FastAPI:
                 "messages": messages,
                 "next_after_sequence": messages[-1]["sequence_number"] if more else None,
             }
+
+    @app.get("/v1/sessions/{session_id}/metrics", response_model=ModelMetricsPage)
+    async def session_metrics(
+        session_id: UUID,
+        limit: int = Query(default=100, ge=1, le=500),
+        offset: int = Query(default=0, ge=0),
+    ) -> ModelMetricsPage:
+        async with app.state.pool.connection() as conn:
+            cur = await conn.execute("SELECT id FROM session_details WHERE id=%s", (session_id,))
+            if not await cur.fetchone():
+                raise HTTPException(404, "Session not found.")
+            cur = await conn.execute(
+                """SELECT * FROM model_metrics WHERE session_id=%s
+                ORDER BY started_at,id LIMIT %s OFFSET %s""",
+                (session_id, limit + 1, offset),
+            )
+            rows = await cur.fetchall()
+        return ModelMetricsPage(
+            session_id=session_id,
+            metrics=rows[:limit],
+            next_offset=offset + limit if len(rows) > limit else None,
+        )
 
     return app
 

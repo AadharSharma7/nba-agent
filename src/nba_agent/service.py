@@ -17,7 +17,7 @@ from nba_agent.agents import (
     known_unsupported_request,
 )
 from nba_agent.config import Settings
-from nba_agent.domain import ChatRequest, ChatResponse
+from nba_agent.domain import ChatRequest, ChatResponse, ModelMetric
 from nba_agent.messages import (
     Message,
     agent_messages,
@@ -25,6 +25,7 @@ from nba_agent.messages import (
     conversation_context,
     json_value,
 )
+from nba_agent.metrics import MeteredModel
 from nba_agent.queries import ClarificationNeeded
 
 
@@ -75,17 +76,23 @@ class ChatService:
             else:
                 await conn.execute("INSERT INTO session_details(id) VALUES(%s)", (session_id,))
         context = await conversation_context(self.pool, session_id)
-        await append_messages(
-            self.pool,
-            session_id,
-            [Message("user", "user_message", {"message": request.message}, user_visible=True)],
+        user_message = Message(
+            "user", "user_message", {"message": request.message}, user_visible=True
         )
+        await append_messages(self.pool, session_id, [user_message])
         events = []
+        metrics: list[ModelMetric] = []
 
         async def run_agent(agent, role, **kwargs):
             with capture_run_messages() as messages:
                 try:
-                    return await agent.run(prompt, **kwargs)
+                    model = MeteredModel(
+                        agent.model,
+                        metrics,
+                        user_message.message_id,
+                        "gatekeeper" if role == "gate" else "analyst",
+                    )
+                    return await agent.run(prompt, model=model, **kwargs)
                 finally:
                     events.extend(
                         agent_messages(messages, role, deps.tool_calls if role == "analyst" else [])
@@ -99,6 +106,7 @@ class ChatService:
             RunUsage(),
         )
         error_code, analyst_output = None, None
+        cancelled = None
         response = ChatResponse(
             session_id=session_id, message_id=uuid4(), status="refused", answer=REFUSAL
         )
@@ -168,6 +176,11 @@ class ChatService:
                 response.answer = (
                     "I couldn't find that NBA player or team. Please provide the full name."
                 )
+        except asyncio.CancelledError as exc:
+            cancelled = exc
+            error_code = "CancelledError"
+            response.status = "error"
+            response.answer = "The NBA query was cancelled."
         except Exception as exc:
             # No provider error strings, credentials or raw traces in user-facing output.
             error_code = type(exc).__name__
@@ -203,5 +216,7 @@ class ChatService:
                 "error_code": error_code,
             }
         )
-        await append_messages(self.pool, session_id, events)
+        await append_messages(self.pool, session_id, events, metrics=metrics)
+        if cancelled is not None:
+            raise cancelled
         return response

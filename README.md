@@ -107,6 +107,43 @@ The default page is 100 messages (maximum 500). Pass `limit` and
 `after_sequence` to paginate; `next_after_sequence` is null on the last page.
 In pgAdmin, sort `message_details` by `session_id, sequence_number`.
 
+For new calls, `model_metrics` stores one row per model request, including
+validation retries, failures and cancellations. Each row references the existing
+user-message UUID and session, with a `gatekeeper` or `analyst` stage, call order,
+provider/model, input/output/cached-input tokens, duration, completion status and
+estimated USD cost. SQL tool execution stays in message/tool logs and is not a
+model call. A completed model call may still produce an answer rejected by validation.
+
+`session_details` includes `input_tokens`, `output_tokens`, `cached_input_tokens`,
+`total_tokens`, `estimated_cost_usd`, `model_call_count`, `user_message_count`,
+`usage_complete`, `cost_complete`, `metrics_started_at` and `last_activity_at`.
+Total tokens are input plus output; cached input is already included in input.
+Session totals summarize persisted model calls, not duplicate message-usage
+summaries. Model-call count includes failed attempts, so it can exceed the chat
+response's `model_calls` count of responses processed by PydanticAI.
+
+GET `/v1/sessions/<session-id>/metrics` returns `session_id`, `metrics` and
+`next_offset`. Records are ordered by call start time and ID. Use `limit`
+(default 100, maximum 500) and `offset` (default 0) to paginate; `next_offset` is
+null on the last page. The existing session endpoint includes totals in `session`.
+USD amounts are serialized as decimal strings to preserve precision.
+
+Pricing uses PydanticAI's `ModelResponse.cost()` integration with the installed
+`genai-prices` snapshot. Each call is priced separately, with its estimate,
+applied rates and library version retained; an existing response-usage cost takes
+precedence. Price data is not downloaded automatically. Updating the installed
+pricing data affects future calculations, not stored estimates. These are model
+API cost estimates, not invoices or backend hosting costs. Unknown usage/prices
+remain null. Mixed sessions show known subtotals with the relevant completeness
+flag false; an entirely unpriced session has null cost. A request refused before
+any model call has a genuine zero cost. Pricing lookup failures do not fail chat.
+
+Call records, final messages and session totals are committed in one transaction
+when processing finishes. Re-saving the same record IDs does not add usage again.
+In-flight calls are not included yet. Cancellation records are saved before
+cancellation propagates, but a process crash or database outage can still prevent
+usage from being persisted; provider billing remains authoritative.
+
 Messages include gate decisions, analyst outputs, tool arguments/results,
 validation feedback, failed tool calls and application-generated replies.
 `user_visible` distinguishes chat content from internal exchanges. The final
@@ -190,6 +227,11 @@ Migration 002 replaces `chat_turns` with `message_details` and discards prior
 prototype conversation logs, as agreed. It leaves all NBA statistics intact.
 Stop any running backend before applying it with `nba-agent init-db`, then
 restart the backend. Repeating `init-db` does not clear messages again.
+Migration 003 adds model metrics and session totals without deleting or backfilling
+existing sessions. Apply it with `.venv/bin/nba-agent init-db` and restart an
+already-running backend to load accounting and the metrics endpoint. Untouched
+older sessions have null metrics. Resuming one tracks only new activity, with
+completeness flags false because historical calls are not included.
 
 ## Tests and evaluations
 
@@ -205,7 +247,8 @@ Integration tests require the imported local database. They read NBA records and
 write synthetic session logs, but never mutate the imported dataset. Tests cover
 priority query totals, weighted percentages, participation, name ambiguity,
 parameterized injection attempts, least-privilege access, refusals, evidence
-validation, follow-up sessions and HTTP boundaries.
+validation, follow-up sessions, per-call pricing, session totals, accounting retries/
+failures/cancellations, atomic saves and HTTP boundaries.
 
 After adding a real key, explicitly run the live evaluation suite (paid calls):
 
@@ -227,7 +270,8 @@ Coding-agent conventions are documented in [AGENTS.md](AGENTS.md).
 * src/nba_agent/agents.py: Gatekeeper, Analyst, tool and output validation.
 * src/nba_agent/prompts.py: Gatekeeper and Analyst runtime instructions.
 * src/nba_agent/service.py: orchestration and conversation flow.
-* src/nba_agent/messages.py: ordered message persistence and conversation context.
+* src/nba_agent/messages.py: ordered messages, metrics persistence and conversation context.
+* src/nba_agent/metrics.py: model-call timing, usage and cost accounting.
 * src/nba_agent/queries.py: entity resolution and fixed analytical SQL.
 * src/nba_agent/domain.py: validated request/response models.
 * src/nba_agent/ingestion.py and migrations/: local setup and source ingestion.

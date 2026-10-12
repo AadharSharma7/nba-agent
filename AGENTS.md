@@ -43,7 +43,11 @@ architecture, supported features, and data policy.
 - Conversations use `session_details` and `message_details`. Each message has its
   own UUID, a session ID, role, type, and ordered sequence number. Preserve tool
   requests/results and application responses. There is no separate turn/request
-  ID or active `chat_turns` table.
+  ID or active `chat_turns` table. `model_metrics` records each model call against
+  the existing user-message UUID. Preserve per-call usage/cost records as the
+  accounting source of truth and update session totals atomically with them.
+  Missing usage or pricing is unknown, not zero; cached input is part of input
+  tokens, not an additional token total. Do not backfill older sessions by default.
 - Keep secrets in the ignored `.env`; document configuration with placeholders
   in `.example.env`. Never print or copy credentials into code, logs, or docs.
   Exclude system prompts, private model reasoning, and raw provider errors from

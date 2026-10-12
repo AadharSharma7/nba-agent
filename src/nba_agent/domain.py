@@ -1,8 +1,9 @@
 import re
 import unicodedata
-from datetime import date
+from datetime import date, datetime
+from decimal import Decimal
 from typing import Literal
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -87,3 +88,33 @@ class ChatResponse(StrictModel):
     sources: list[dict] = Field(default_factory=list)
     data: list[dict] = Field(default_factory=list)
     model_calls: int = 0
+
+
+class ModelMetric(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    user_message_id: UUID
+    stage: Literal["gatekeeper", "analyst"]
+    call_sequence: int = Field(ge=1)
+    provider: str
+    model: str
+    started_at: datetime
+    duration_ms: int = Field(default=0, ge=0)
+    status: Literal["completed", "error", "cancelled"] = "error"
+    error_type: str | None = None
+    input_tokens: int | None = Field(default=None, ge=0)
+    output_tokens: int | None = Field(default=None, ge=0)
+    cached_input_tokens: int | None = Field(default=None, ge=0)
+    estimated_cost_usd: Decimal | None = Field(default=None, ge=0)
+    pricing_status: Literal["priced", "unavailable", "usage_unavailable"] = "usage_unavailable"
+    pricing_metadata: dict = Field(default_factory=dict)
+
+
+class ModelMetricRecord(ModelMetric):
+    session_id: UUID
+    total_tokens: int | None
+
+
+class ModelMetricsPage(BaseModel):
+    session_id: UUID
+    metrics: list[ModelMetricRecord]
+    next_offset: int | None

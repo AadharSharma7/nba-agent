@@ -5,7 +5,9 @@ from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
+from psycopg import AsyncConnection
 from psycopg.types.json import Jsonb
+from psycopg_pool import AsyncConnectionPool
 from pydantic_ai.messages import (
     ModelResponse,
     RetryPromptPart,
@@ -13,6 +15,8 @@ from pydantic_ai.messages import (
     ToolCallPart,
     ToolReturnPart,
 )
+
+from nba_agent.domain import ModelMetric
 
 
 def json_value(value):
@@ -114,11 +118,17 @@ def agent_messages(messages, role: str, calls: list[dict]) -> list[Message]:
     return sorted(events, key=lambda event: event.created_at)
 
 
-async def append_messages(pool, session_id: UUID, messages: list[Message]):
-    if not messages:
+async def append_messages(
+    pool: AsyncConnectionPool,
+    session_id: UUID,
+    messages: list[Message],
+    *,
+    metrics: list[ModelMetric] | None = None,
+) -> None:
+    if not messages and metrics is None:
         return
     async with pool.connection() as conn:
-        # Serialize sequence assignment without granting UPDATE on session records.
+        # Serialize messages, call metrics and session totals in one transaction.
         await conn.execute(
             "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))", (str(session_id),)
         )
@@ -127,29 +137,99 @@ async def append_messages(pool, session_id: UUID, messages: list[Message]):
             (session_id,),
         )
         sequence = (await cur.fetchone())["last"]
-        async with conn.cursor() as cur:
-            await cur.executemany(
+        for message in messages:
+            cur = await conn.execute(
                 """INSERT INTO message_details
                 (message_id,session_id,sequence_number,role,message_type,content,created_at,
                  tool_call_id,user_visible,status,metadata)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                [
-                    (
-                        m.message_id,
-                        session_id,
-                        sequence + i,
-                        m.role,
-                        m.message_type,
-                        Jsonb(json_value(m.content)),
-                        m.created_at,
-                        m.tool_call_id,
-                        m.user_visible,
-                        m.status,
-                        Jsonb(json_value(m.metadata)),
-                    )
-                    for i, m in enumerate(messages, 1)
-                ],
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON CONFLICT (message_id) DO NOTHING RETURNING message_id""",
+                (
+                    message.message_id,
+                    session_id,
+                    sequence + 1,
+                    message.role,
+                    message.message_type,
+                    Jsonb(json_value(message.content)),
+                    message.created_at,
+                    message.tool_call_id,
+                    message.user_visible,
+                    message.status,
+                    Jsonb(json_value(message.metadata)),
+                ),
             )
+            if await cur.fetchone():
+                sequence += 1
+                await conn.execute(
+                    """UPDATE session_details SET
+                    user_message_count=COALESCE(user_message_count,0)+%s,
+                    metrics_started_at=COALESCE(metrics_started_at,%s),
+                    last_activity_at=GREATEST(last_activity_at,%s)
+                    WHERE id=%s""",
+                    (
+                        int(message.role == "user"),
+                        message.created_at,
+                        message.created_at,
+                        session_id,
+                    ),
+                )
+        if metrics is not None:
+            await persist_metrics(conn, session_id, metrics)
+
+
+async def persist_metrics(
+    conn: AsyncConnection, session_id: UUID, metrics: list[ModelMetric]
+) -> None:
+    """Called under append_messages' session lock and transaction; retries cannot inflate totals."""
+    for metric in metrics:
+        await conn.execute(
+            """INSERT INTO model_metrics
+            (id,session_id,user_message_id,stage,call_sequence,provider,model,started_at,
+             duration_ms,status,error_type,input_tokens,output_tokens,cached_input_tokens,
+             estimated_cost_usd,pricing_status,pricing_metadata)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            ON CONFLICT (id) DO NOTHING""",
+            (
+                metric.id,
+                session_id,
+                metric.user_message_id,
+                metric.stage,
+                metric.call_sequence,
+                metric.provider,
+                metric.model,
+                metric.started_at,
+                metric.duration_ms,
+                metric.status,
+                metric.error_type,
+                metric.input_tokens,
+                metric.output_tokens,
+                metric.cached_input_tokens,
+                metric.estimated_cost_usd,
+                metric.pricing_status,
+                Jsonb(json_value(metric.pricing_metadata)),
+            ),
+        )
+    # Sum the ledger, never both message usage and final-answer usage summaries.
+    # Unknown-only totals stay NULL; mixed totals are known subtotals with complete=false.
+    await conn.execute(
+        """UPDATE session_details SET
+        input_tokens=totals.input_tokens, output_tokens=totals.output_tokens,
+        cached_input_tokens=totals.cached_input_tokens, estimated_cost_usd=totals.cost,
+        model_call_count=totals.calls,
+        usage_complete=COALESCE(session_details.usage_complete,false) AND totals.usage_complete,
+        cost_complete=COALESCE(session_details.cost_complete,false) AND totals.cost_complete
+        FROM (
+            SELECT count(*) calls,
+            CASE WHEN count(*)=0 THEN 0 ELSE sum(input_tokens) END input_tokens,
+            CASE WHEN count(*)=0 THEN 0 ELSE sum(output_tokens) END output_tokens,
+            CASE WHEN count(*)=0 THEN 0 ELSE sum(cached_input_tokens) END cached_input_tokens,
+            CASE WHEN count(*)=0 THEN 0 ELSE sum(estimated_cost_usd) END cost,
+            COALESCE(bool_and(input_tokens IS NOT NULL),true) usage_complete,
+            COALESCE(bool_and(pricing_status='priced'),true) cost_complete
+            FROM model_metrics WHERE session_id=%s
+        ) totals WHERE id=%s""",
+        (session_id, session_id),
+    )
 
 
 async def conversation_context(pool, session_id: UUID):

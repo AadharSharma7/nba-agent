@@ -68,6 +68,12 @@ def bootstrap(settings: Settings) -> None:
         )
         conn.execute("GRANT SELECT, INSERT ON session_details TO nba_agent_app")
         conn.execute("GRANT SELECT, INSERT ON message_details TO nba_agent_app")
+        conn.execute("GRANT SELECT, INSERT ON model_metrics TO nba_agent_app")
+        conn.execute(
+            "GRANT UPDATE (metrics_started_at,input_tokens,output_tokens,cached_input_tokens,"
+            "estimated_cost_usd,model_call_count,user_message_count,usage_complete,cost_complete,"
+            "last_activity_at) ON session_details TO nba_agent_app"
+        )
     print("Database and migrations ready.", flush=True)
 
 
