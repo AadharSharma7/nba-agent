@@ -225,6 +225,7 @@ Coding-agent conventions are documented in [AGENTS.md](AGENTS.md).
 
 * src/nba_agent/api.py: HTTP interface and local request boundaries.
 * src/nba_agent/agents.py: Gatekeeper, Analyst, tool and output validation.
+* src/nba_agent/prompts.py: Gatekeeper and Analyst runtime instructions.
 * src/nba_agent/service.py: orchestration and conversation flow.
 * src/nba_agent/messages.py: ordered message persistence and conversation context.
 * src/nba_agent/queries.py: entity resolution and fixed analytical SQL.

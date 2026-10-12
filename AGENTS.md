@@ -2,7 +2,7 @@
 
 This file guides coding agents modifying the project. It does not configure the
 NBA chatbot's runtime behavior; runtime instructions live in
-`src/nba_agent/agents.py`. See [README.md](README.md) for setup, API examples,
+`src/nba_agent/prompts.py`. See [README.md](README.md) for setup, API examples,
 architecture, supported features, and data policy.
 
 ## Development conventions
