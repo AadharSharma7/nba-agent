@@ -1,4 +1,4 @@
-# NBA Agent — local backend prototype
+# NBA Agent — local prototype
 
 Python 3.12, FastAPI, PydanticAI, OpenAI and PostgreSQL. The fixed Kaggle v515
 snapshot is the sole statistical source. No vector database, frontend, live-data
@@ -6,7 +6,9 @@ provider or document retrieval is needed for this first statistics backend.
 
 ## Current local setup
 
-The project virtual environment is `.venv`. PostgreSQL 18.6 runs through
+Backend code and Python configuration live in `backend/`; `frontend/` is reserved
+for the upcoming UI. The existing project virtual environment remains at `.venv`
+in the repository root, shared with the audit tools. PostgreSQL 18.6 runs through
 Postgres.app on localhost:5432. The backend uses the dedicated `nba_agent`
 database and restricted `nba_agent_app` role. Its administrator connection is
 used only by setup/import commands, never by the API or agents.
@@ -25,7 +27,7 @@ Start the backend from this directory:
 Open [the interactive API docs](http://127.0.0.1:8001/docs) to try requests.
 Use [the health endpoint](http://127.0.0.1:8001/health) to inspect database and model readiness.
 
-Add your OpenAI key to `.env` and restart the backend to enable chat.
+Add your OpenAI key to `backend/.env` and restart the backend to enable chat.
 The placeholder is deliberately recognized as unconfigured, so it is never sent
 to OpenAI. Statistics endpoints work without an API key. The configurable
 default model is `gpt-4.1-mini` for both agents; no key is stored in session logs.
@@ -202,20 +204,26 @@ themselves establish DNP; positive box-score activity takes precedence.
 
 ## Reproduce the environment and database
 
-Run from the project root. Existing .env files are preserved:
+Run from the repository root. Existing `backend/.env` files are preserved:
 
 ```bash
 python3.12 -m venv .venv
-.venv/bin/python -m pip install -r requirements.lock
-.venv/bin/python -m pip install -e . --no-deps
+.venv/bin/python -m pip install -r backend/requirements.lock
+.venv/bin/python -m pip install -e backend --no-deps
 .venv/bin/nba-agent setup-env
 .venv/bin/nba-agent init-db
 .venv/bin/nba-agent ingest
 ```
 
-`requirements.lock` pins the full tested environment, including audit/testing
-dependencies. Direct application dependencies are also pinned in pyproject.toml.
-The current .env database password is a local-only prototype value; change it
+Configuration always loads `backend/.env`, regardless of the working directory.
+Relative `DATA_DIR` and `MANIFEST_PATH` values resolve from the repository root,
+so the existing `data/raw/` and `audit/reports/` locations remain valid. From
+inside `backend/`, the same CLI is available as `../.venv/bin/nba-agent`.
+Evaluation reports are written to `backend/evals/results/`.
+
+`backend/requirements.lock` pins the full tested environment, including audit/testing
+dependencies. Direct application dependencies are also pinned in `backend/pyproject.toml`.
+The current `backend/.env` database password is a local-only prototype value; change it
 before using this configuration beyond your private machine.
 
 The importer verifies source-file hashes against audit/reports/snapshot_manifest.json,
@@ -238,9 +246,9 @@ completeness flags false because historical calls are not included.
 Offline tests never make paid model requests:
 
 ```bash
-.venv/bin/pytest -q -m 'not integration'
-NBA_TEST_DATABASE=1 .venv/bin/pytest -q
-.venv/bin/ruff check src tests evals
+.venv/bin/pytest -c backend/pyproject.toml -q -m 'not integration'
+NBA_TEST_DATABASE=1 .venv/bin/pytest -c backend/pyproject.toml -q
+.venv/bin/ruff check backend/src backend/tests backend/evals
 ```
 
 Integration tests require the imported local database. They read NBA records and
@@ -253,8 +261,8 @@ failures/cancellations, atomic saves and HTTP boundaries.
 After adding a real key, explicitly run the live evaluation suite (paid calls):
 
 ```bash
-.venv/bin/python evals/run_live.py --limit 3
-.venv/bin/python evals/run_live.py
+.venv/bin/python backend/evals/run_live.py --limit 3
+.venv/bin/python backend/evals/run_live.py
 ```
 
 Results record routing status, expected statistical values, latency and model
@@ -266,17 +274,18 @@ logs; provider error messages and credentials are not exposed through the API.
 
 Coding-agent conventions are documented in [AGENTS.md](AGENTS.md).
 
-* src/nba_agent/api.py: HTTP interface and local request boundaries.
-* src/nba_agent/agents.py: Gatekeeper, Analyst, tool and output validation.
-* src/nba_agent/prompts.py: Gatekeeper and Analyst runtime instructions.
-* src/nba_agent/service.py: orchestration and conversation flow.
-* src/nba_agent/messages.py: ordered messages, metrics persistence and conversation context.
-* src/nba_agent/metrics.py: model-call timing, usage and cost accounting.
-* src/nba_agent/queries.py: entity resolution and fixed analytical SQL.
-* src/nba_agent/domain.py: validated request/response models.
-* src/nba_agent/ingestion.py and migrations/: local setup and source ingestion.
-* tests/: unit, database and mock-model integration tests.
-* evals/: real-model evaluation cases and opt-in runner.
+* backend/src/nba_agent/api.py: HTTP interface and local request boundaries.
+* backend/src/nba_agent/agents.py: Gatekeeper, Analyst, tool and output validation.
+* backend/src/nba_agent/prompts.py: Gatekeeper and Analyst runtime instructions.
+* backend/src/nba_agent/service.py: orchestration and conversation flow.
+* backend/src/nba_agent/messages.py: ordered messages, metrics persistence and conversation context.
+* backend/src/nba_agent/metrics.py: model-call timing, usage and cost accounting.
+* backend/src/nba_agent/queries.py: entity resolution and fixed analytical SQL.
+* backend/src/nba_agent/domain.py: validated request/response models.
+* backend/src/nba_agent/ingestion.py and migrations/: local setup and source ingestion.
+* backend/tests/: unit, database and mock-model integration tests.
+* backend/evals/: real-model evaluation cases and opt-in runner.
+* frontend/: reserved for the chat UI; no frontend implementation yet.
 * audit/: original data audit; its recommendations predate the accepted prototype policy.
 * data/raw/: unchanged, ignored Kaggle snapshot and archive.
 

@@ -2,12 +2,14 @@
 
 This file guides coding agents modifying the project. It does not configure the
 NBA chatbot's runtime behavior; runtime instructions live in
-`src/nba_agent/prompts.py`. See [README.md](README.md) for setup, API examples,
+`backend/src/nba_agent/prompts.py`. See [README.md](README.md) for setup, API examples,
 architecture, supported features, and data policy.
 
 ## Development conventions
 
-- Use the existing Python 3.12 `.venv` and its executables. Do not install project
+- Backend code, tests and Python configuration live in `backend/`; UI code belongs
+  in `frontend/`. Raw data and audits remain at the repository root.
+- Use the existing Python 3.12 repository-root `.venv` and its executables. Do not install project
   dependencies globally. If the environment is missing, follow the README setup.
 - Keep the local prototype simple: FastAPI, PydanticAI, PostgreSQL, and one backend
   process. Add dependencies or architectural layers only when the task needs them.
@@ -15,7 +17,7 @@ architecture, supported features, and data policy.
   models, statistics queries, message persistence, and ingestion.
 - Use Pydantic models at tool/API boundaries, type annotations for new interfaces,
   and the repository's Ruff configuration.
-- Keep `pyproject.toml` and `requirements.lock` consistent when dependencies change.
+- Keep `backend/pyproject.toml` and `backend/requirements.lock` consistent when dependencies change.
 - Keep the README aligned with changes to setup, endpoints, schema, and behavior.
 
 ## Runtime and data boundaries
@@ -48,30 +50,30 @@ architecture, supported features, and data policy.
   accounting source of truth and update session totals atomically with them.
   Missing usage or pricing is unknown, not zero; cached input is part of input
   tokens, not an additional token total. Do not backfill older sessions by default.
-- Keep secrets in the ignored `.env`; document configuration with placeholders
-  in `.example.env`. Never print or copy credentials into code, logs, or docs.
+- Keep secrets in the ignored `backend/.env`; document configuration with placeholders
+  in `backend/.example.env`. Never print or copy credentials into code, logs, or docs.
   Exclude system prompts, private model reasoning, and raw provider errors from
   conversation logs and API responses.
 
 ## Verification
 
-Run checks appropriate to the change using the project environment:
+Run checks from the repository root using the project environment:
 
 ```bash
-.venv/bin/pytest -q -m 'not integration'
-.venv/bin/ruff check src tests evals
-.venv/bin/ruff format --check src tests evals
+.venv/bin/pytest -c backend/pyproject.toml -q -m 'not integration'
+.venv/bin/ruff check backend/src backend/tests backend/evals
+.venv/bin/ruff format --check backend/src backend/tests backend/evals
 ```
 
 For database, query, or pipeline changes, also run the integration suite against
 the initialized local PostgreSQL database:
 
 ```bash
-NBA_TEST_DATABASE=1 .venv/bin/pytest -q
+NBA_TEST_DATABASE=1 .venv/bin/pytest -c backend/pyproject.toml -q
 ```
 
 The test suite blocks paid model requests. Integration tests read NBA statistics
-and write synthetic conversation logs. `evals/run_live.py` is a separate, paid
+and write synthetic conversation logs. `backend/evals/run_live.py` is a separate, paid
 OpenAI evaluation; run it when live evaluation is within the requested scope.
 
 Add meaningful regression coverage for behavioral fixes. Documentation-only

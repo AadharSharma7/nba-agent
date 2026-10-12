@@ -72,7 +72,7 @@ def create_app(settings: Settings | None = None, agents=None) -> FastAPI:
             return await app.state.chat.chat(request)
         except MissingAPIKey:
             raise HTTPException(
-                503, "Set OPENAI_API_KEY in .env and restart the backend to enable chat."
+                503, "Set OPENAI_API_KEY in backend/.env and restart the backend to enable chat."
             ) from None
         except UnknownSession:
             raise HTTPException(404, "Session not found.") from None

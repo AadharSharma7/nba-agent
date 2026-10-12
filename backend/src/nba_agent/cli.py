@@ -2,9 +2,8 @@ import argparse
 import asyncio
 import json
 import os
-from pathlib import Path
 
-from nba_agent.config import Settings
+from nba_agent.config import BACKEND_ROOT, Settings
 
 
 def main():
@@ -13,14 +12,14 @@ def main():
     parser.add_argument("--query", help="JSON StatsQuery for stats command")
     args = parser.parse_args()
     if args.command == "setup-env":
-        target = Path(".env")
+        target = BACKEND_ROOT / ".env"
         if target.exists():
-            print(".env already exists; left unchanged.")
+            print("backend/.env already exists; left unchanged.")
         else:
             fd = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
             with os.fdopen(fd, "w") as output:
-                output.write(Path(".example.env").read_text())
-            print("Created .env with placeholders. Add OPENAI_API_KEY locally for chat.")
+                output.write((BACKEND_ROOT / ".example.env").read_text())
+            print("Created backend/.env with placeholders. Add OPENAI_API_KEY locally for chat.")
         return
     settings = Settings()
     if args.command == "init-db":

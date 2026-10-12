@@ -16,7 +16,7 @@ from nba_agent.service import ChatService
 async def run(limit: int, offset: int):
     settings = Settings()
     if not settings.llm_configured:
-        raise SystemExit("Add OPENAI_API_KEY to .env first. No requests were sent.")
+        raise SystemExit("Add OPENAI_API_KEY to backend/.env first. No requests were sent.")
     cases = json.loads(Path(__file__).with_name("cases.json").read_text())[offset : offset + limit]
     results = []
     async with make_pool(settings) as pool:
@@ -59,7 +59,7 @@ async def run(limit: int, offset: int):
                 )
         finally:
             await service.close()
-    output = Path("evals/results")
+    output = Path(__file__).resolve().parent / "results"
     output.mkdir(exist_ok=True)
     report = output / f"live-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}.json"
     report.write_text(json.dumps(results, indent=2))
