@@ -18,11 +18,51 @@ architecture, supported features, and data policy.
 - Keep the local prototype simple: FastAPI, PydanticAI, PostgreSQL, and one backend
   process. Add dependencies or architectural layers only when the task needs them.
 - Follow the existing module boundaries: API, orchestration, agents, typed domain
-  models, statistics queries, message persistence, and ingestion.
+  models, statistics queries, message persistence, and ingestion. Website browsing
+  queries live in `browse.py`, owner analytics in `dashboard.py`, browser access
+  controls in `security.py`, and website API models in `web_models.py`.
 - Use Pydantic models at tool/API boundaries, type annotations for new interfaces,
   and the repository's Ruff configuration.
 - Keep `backend/pyproject.toml` and `backend/requirements.lock` consistent when dependencies change.
 - Keep the README aligned with changes to setup, endpoints, schema, and behavior.
+
+## Public site and private dashboard
+
+- Preserve the basketball logo, NBA Agent name, and clean visual style. Public
+  pages are `/`, `/players`, and `/players/{player_id}`; the owner interface is
+  `/admin`. They share one FastAPI process and local origin. Separate hosted
+  domains and internet deployment are not configured; keep the server bound to
+  loopback unless deployment changes are explicitly requested.
+- Visitors browse statistics and chat without registering or signing in. Keep
+  the chat launcher at the bottom right. Public chat shows user-visible messages
+  and retrieved evidence, never token counts, costs, model calls, or internal tool
+  exchanges. Enforce this in API response models, not only by hiding UI elements.
+- Statistics browsing must use database queries without model calls. Preserve
+  player identity disambiguation, season/phase filters, pagination, and unknown
+  values. Show player/season context explicitly when adding it to a chat question.
+- Visitor cookies identify anonymous browsers. Verify conversation ownership on
+  every history, detail, and continuation request; knowing a session UUID grants
+  no access. Legacy conversations without visitor ownership remain owner-only.
+- Protect private data endpoints with server-side owner authentication, including
+  any legacy metrics routes. The dashboard HTML shell may be public, but its
+  conversations, analytics, costs, and tool activity must require authentication.
+  Preserve password plus TOTP login, replay prevention, login throttling, session
+  expiry, logout revocation, and credential-rotation invalidation. Missing owner
+  configuration must deny private access.
+- Owner enrollment/recovery uses `.venv/bin/nba-agent owner-setup` in the user's
+  interactive terminal, followed by a server restart. The user chooses the
+  password and enrolls the setup key in a time-based authenticator. Never request
+  their password, enrollment key, or authenticator code in chat, or enroll/reset
+  owner credentials as a side effect of unrelated work.
+- Preserve hashed session tokens, HttpOnly/SameSite cookies, origin checks,
+  JSON-only mutations, persistent rate limits, and daily chat budget checks.
+  Private responses and HTML use `no-store`; static assets use `no-cache` to
+  revalidate on reload. Keep CSS and JavaScript module URLs compatible with each
+  other, and use versioned URLs when bypassing previously cached releases.
+- Dashboard date filters select sessions by their start time and include all
+  recorded activity in those sessions. Browser inputs/transcripts use local time;
+  daily activity charts use UTC. Preserve full-message search and pagination, and
+  label incomplete usage/cost totals as partial rather than treating unknowns as zero.
 
 ## Runtime and data boundaries
 
@@ -69,18 +109,31 @@ Run checks from the repository root using the project environment:
 .venv/bin/ruff format --check backend/src backend/tests backend/evals
 ```
 
-For database, query, or pipeline changes, also run the integration suite against
-the initialized local PostgreSQL database:
+For database, query, pipeline, or authentication/ownership changes, also run the
+integration suite against the initialized local PostgreSQL database:
 
 ```bash
 NBA_TEST_DATABASE=1 .venv/bin/pytest -c backend/pyproject.toml -q
 ```
 
-Frontend checks use `node --test frontend/tests/*.test.js` and
-`node --check frontend/assets/app.js`. Node is only needed for development checks.
+Frontend checks (Node is only needed for development):
+
+```bash
+node --test frontend/tests/*.test.js
+node --check frontend/assets/app.js
+node --check frontend/assets/admin.js
+node --check frontend/assets/ui.js
+```
+
+For UI changes, check the affected public and owner pages in a browser, including
+mobile layout and console errors. Verify normal reloads pick up asset changes.
+Authentication changes need coverage for unauthenticated private access, visitor
+isolation, expired/revoked sessions, and TOTP replay as applicable. Keep browser
+checks free of paid model calls unless live evaluation is explicitly in scope.
 
 The test suite blocks paid model requests. Integration tests read NBA statistics
-and write synthetic conversation logs. `backend/evals/run_live.py` is a separate, paid
+and write synthetic conversation logs that can appear in the owner dashboard;
+do not delete existing logs as test cleanup. `backend/evals/run_live.py` is a separate, paid
 OpenAI evaluation; run it when live evaluation is within the requested scope.
 
 Add meaningful regression coverage for behavioral fixes. Documentation-only
