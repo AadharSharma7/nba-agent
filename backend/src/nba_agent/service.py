@@ -2,7 +2,7 @@ import asyncio
 import json
 from dataclasses import asdict
 from time import monotonic
-from uuid import uuid4
+from uuid import UUID, uuid4
 from weakref import WeakValueDictionary
 
 from pydantic_ai import capture_run_messages
@@ -55,26 +55,32 @@ class ChatService:
                 await client.close()
                 closed.add(id(client))
 
-    async def chat(self, request: ChatRequest) -> ChatResponse:
+    async def chat(self, request: ChatRequest, visitor_id: UUID | None = None) -> ChatResponse:
         if not self.agents and not explicit_attack(request.message):
             raise MissingAPIKey
         session_id = request.session_id or uuid4()
         lock = self.session_locks.setdefault(session_id, asyncio.Lock())
         # One local worker: keep a conversation sequential, including simultaneous HTTP submissions.
         async with lock, self.semaphore:
-            return await self._chat(request, session_id)
+            return await self._chat(request, session_id, visitor_id)
 
-    async def _chat(self, request: ChatRequest, session_id) -> ChatResponse:
+    async def _chat(
+        self, request: ChatRequest, session_id, visitor_id: UUID | None = None
+    ) -> ChatResponse:
         started = monotonic()
         async with self.pool.connection() as conn:
             if request.session_id:
                 cur = await conn.execute(
-                    "SELECT id FROM session_details WHERE id=%s", (session_id,)
+                    "SELECT id FROM session_details WHERE id=%s AND (%s::uuid IS NULL OR visitor_id=%s)",
+                    (session_id, visitor_id, visitor_id),
                 )
                 if not await cur.fetchone():
                     raise UnknownSession
             else:
-                await conn.execute("INSERT INTO session_details(id) VALUES(%s)", (session_id,))
+                await conn.execute(
+                    "INSERT INTO session_details(id,visitor_id) VALUES(%s,%s)",
+                    (session_id, visitor_id),
+                )
         context = await conversation_context(self.pool, session_id)
         user_message = Message(
             "user", "user_message", {"message": request.message}, user_visible=True

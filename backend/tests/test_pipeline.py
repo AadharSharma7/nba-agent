@@ -218,7 +218,7 @@ async def test_ungrounded_answer_fails_closed(pool):
 
 
 @pytest.mark.integration
-def test_http_contracts_and_missing_key():
+def test_http_contracts_and_missing_key(unmetered_http):
     if os.environ.get("NBA_TEST_DATABASE") != "1":
         pytest.skip("Needs local database")
     app = create_app(Settings(openai_api_key=""))
@@ -231,6 +231,7 @@ def test_http_contracts_and_missing_key():
             == 422
         )
         assert client.post("/v1/chat", json={"message": "x" * 2001}).status_code == 422
+        client.post("/v1/visitor", json={})
         assert client.get(f"/v1/sessions/{uuid4()}").status_code == 404
         assert (
             client.post(
@@ -285,7 +286,7 @@ async def test_tool_failure_preserves_call_and_safe_error(pool, monkeypatch):
 
 
 @pytest.mark.integration
-def test_message_history_http_pagination():
+def test_message_history_http_pagination(unmetered_http):
     settings = Settings()
     app = create_app(settings, build_agents(settings, gate_model(), analyst_model()))
     with TestClient(app) as client:
@@ -293,12 +294,10 @@ def test_message_history_http_pagination():
         assert result["status"] == "answer"
         assert "message_id" in result and "turn_id" not in result
         url = f"/v1/sessions/{result['session_id']}"
-        first = client.get(url, params={"limit": 2}).json()
-        assert "turns" not in first and first["next_after_sequence"] == 2
-        second = client.get(url, params={"after_sequence": 2}).json()
+        first = client.get(url, params={"limit": 1}).json()
+        assert "turns" not in first and first["next_after_sequence"] == 1
+        second = client.get(url, params={"after_sequence": 1}).json()
         assert second["next_after_sequence"] is None
-        assert [m["sequence_number"] for m in first["messages"] + second["messages"]] == list(
-            range(1, 6)
-        )
+        assert [m["sequence_number"] for m in first["messages"] + second["messages"]] == [1, 5]
         assert second["messages"][-1]["message_id"] == result["message_id"]
         assert client.get(url, params={"after_sequence": -1}).status_code == 422

@@ -18,3 +18,31 @@ async def pool():
         pytest.skip("Set NBA_TEST_DATABASE=1 to test the imported local database")
     async with make_pool(Settings()) as result:
         yield result
+
+
+@pytest.fixture
+def unmetered_http(monkeypatch):
+    """Mock-model tests must not spend or be blocked by real visitor budgets."""
+    from nba_agent import api, security
+
+    async def no_budget(*args, **kwargs):
+        pass
+
+    monkeypatch.setattr(api, "check_chat_budget", no_budget)
+    monkeypatch.setattr(security, "limited", no_budget)
+
+
+@pytest.fixture
+def owner_access():
+    from uuid import uuid4
+
+    from nba_agent.security import require_owner
+
+    def authorize(app):
+        async def owner():
+            return uuid4()
+
+        app.dependency_overrides[require_owner] = owner
+        return app
+
+    return authorize

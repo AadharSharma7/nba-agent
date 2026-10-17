@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
@@ -21,6 +21,18 @@ class Settings(BaseSettings):
     manifest_path: Path = REPOSITORY_ROOT / "audit/reports/snapshot_manifest.json"
     host: str = "127.0.0.1"
     port: int = 8001
+    owner_password_hash: SecretStr = SecretStr("")
+    owner_totp_secret: SecretStr = SecretStr("")
+    secure_cookies: bool = False
+    chat_daily_request_limit: int = Field(default=500, ge=1)
+    chat_daily_budget_usd: float = Field(default=5.0, gt=0)
+
+    @property
+    def owner_configured(self) -> bool:
+        return bool(
+            self.owner_password_hash.get_secret_value()
+            and self.owner_totp_secret.get_secret_value()
+        )
 
     @field_validator("data_dir", "manifest_path")
     @classmethod

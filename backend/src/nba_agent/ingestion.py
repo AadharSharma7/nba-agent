@@ -67,6 +67,10 @@ def bootstrap(settings: Settings) -> None:
             "GRANT SELECT ON source_datasets, players, teams, team_aliases, games, player_game_stats, team_game_stats TO nba_agent_app"
         )
         conn.execute("GRANT SELECT, INSERT ON session_details TO nba_agent_app")
+        conn.execute("GRANT SELECT, INSERT, DELETE ON browser_sessions TO nba_agent_app")
+        conn.execute(
+            "GRANT SELECT, INSERT, UPDATE ON web_rate_limits, web_auth_state TO nba_agent_app"
+        )
         conn.execute("GRANT SELECT, INSERT ON message_details TO nba_agent_app")
         conn.execute("GRANT SELECT, INSERT ON model_metrics TO nba_agent_app")
         conn.execute(

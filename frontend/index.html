@@ -1,240 +1,235 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f8f7f4" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#faf9f6" />
     <meta
       name="description"
-      content="Explore historical NBA player statistics with answers grounded in the data."
+      content="Explore historical NBA players, season statistics and game logs with NBA Agent."
     />
     <title>NBA Agent · The numbers behind the game</title>
     <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/styles.css" />
-    <script type="module" src="/assets/app.js"></script>
+    <link rel="stylesheet" href="/assets/styles.css?v=2" />
+    <script type="module" src="/assets/app.js?v=2"></script>
   </head>
-  <body>
-    <a class="skip-link" href="#question">Skip to message input</a>
-    <div class="shell">
-      <aside class="sidebar" id="sidebar" aria-label="Conversation navigation">
-        <div class="brand">
-          <img src="/assets/mark.svg" alt="" width="34" height="34" /><span
-            >NBA <strong>Agent</strong></span
-          ><button
-            class="icon-button mobile-only"
-            id="close-sidebar"
-            aria-label="Close navigation"
+  <body id="nba-preview">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="nba-header">
+      <a class="nba-brand" href="/" data-route
+        ><img src="/assets/mark.svg" alt="" width="34" height="34" /><span
+          >NBA <strong>Agent</strong></span
+        ></a
+      >
+      <nav class="nba-nav" aria-label="Main navigation">
+        <a href="/" data-route>Explore</a
+        ><a href="/players" data-route>Players</a>
+      </nav>
+    </header>
+    <main class="nba-content" id="main">
+      <div class="notice" id="notice" role="status" hidden></div>
+      <section id="home">
+        <div class="nba-hero">
+          <div class="nba-eyebrow">Your NBA research companion</div>
+          <h1>
+            The game has stories.<br /><span>Start with the numbers.</span>
+          </h1>
+          <p class="nba-sub">
+            Explore players, revisit great seasons, and ask the questions behind
+            every box score.
+          </p>
+          <div class="nba-searchwrap">
+            <label class="nba-search"
+              ><span aria-hidden="true">⌕</span
+              ><input
+                id="search"
+                type="search"
+                placeholder="Search for an NBA player…"
+                aria-label="Search players"
+                autocomplete="off"
+                maxlength="100"
+            /></label>
+            <div
+              class="nba-results"
+              id="search-results"
+              aria-live="polite"
+              hidden
+            ></div>
+          </div>
+        </div>
+        <div class="nba-sectionhead">
+          <h2>Explore players</h2>
+          <a href="/players" data-route class="nba-textlink"
+            >Browse all players ↗</a
           >
+        </div>
+        <div class="nba-players" id="featured"></div>
+        <div class="nba-sectionhead">
+          <div>
+            <h2>Season leaders</h2>
+            <p class="nba-data-note">Regular season · Per game</p>
+          </div>
+          <div class="nba-controls">
+            <select id="leader-season" aria-label="Leaderboard season"></select
+            ><label class="nba-data-note"
+              >Min. games
+              <select id="leader-min" aria-label="Minimum appearances">
+                <option value="1">1</option>
+                <option value="20" selected>20</option>
+                <option value="40">40</option>
+                <option value="58">58</option>
+              </select></label
+            >
+            <div class="nba-segment" aria-label="Leaderboard category">
+              <button data-category="points" aria-pressed="true">Points</button
+              ><button data-category="rebounds" aria-pressed="false">
+                Rebounds</button
+              ><button data-category="assists" aria-pressed="false">
+                Assists
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="leaders"></div>
+        <p class="nba-data-note">
+          Ranked among players meeting the selected minimum appearances.
+        </p>
+      </section>
+      <section id="directory" class="nba-directory" hidden>
+        <div class="nba-eyebrow">The player index</div>
+        <h1>Find your next deep dive.</h1>
+        <label class="nba-search"
+          ><input
+            id="directory-search"
+            type="search"
+            placeholder="Search by player name…"
+            aria-label="Find a player"
+            maxlength="100"
+        /></label>
+        <div
+          class="nba-directory-results"
+          id="directory-results"
+          aria-live="polite"
+        ></div>
+        <button class="nba-outline nba-more" id="directory-more" hidden>
+          Load more players
+        </button>
+      </section>
+      <section id="player" hidden>
+        <div class="nba-breadcrumb">
+          <a href="/players" data-route>Players</a><span>/</span
+          ><span id="player-crumb"></span>
+        </div>
+        <div class="nba-profilehead">
+          <div>
+            <div class="nba-eyebrow">Historical player profile</div>
+            <h1 id="player-name"></h1>
+            <p class="nba-profilemeta" id="player-meta"></p>
+          </div>
+          <button class="nba-outline" id="ask-player">
+            Ask about this player ↗
+          </button>
+        </div>
+        <div class="nba-summary" id="summary"></div>
+        <div class="nba-tabs" aria-label="Player view">
+          <button data-view="seasons" aria-pressed="true">
+            Season statistics</button
+          ><button data-view="games" aria-pressed="false">Game logs</button>
+        </div>
+        <div class="nba-playerfilters">
+          <div class="nba-segment" aria-label="Competition">
+            <button data-phase="regular" aria-pressed="true">
+              Regular season</button
+            ><button data-phase="playoffs" aria-pressed="false">
+              Playoffs
+            </button>
+          </div>
+          <div class="nba-controls">
+            <select id="season" aria-label="Player season"></select>
+            <div class="nba-segment" id="units" aria-label="Statistical units">
+              <button data-unit="average" aria-pressed="true">Per game</button
+              ><button data-unit="total" aria-pressed="false">Totals</button>
+            </div>
+          </div>
+        </div>
+        <div id="player-stats"></div>
+        <button id="games-more" class="nba-outline nba-more" hidden>
+          Load more games
+        </button>
+        <p class="nba-data-note">
+          — means unavailable. Shooting percentages use total makes divided by
+          total attempts.
+        </p>
+        <div class="nba-contextstrip">
+          <div>
+            <p>There’s more behind the numbers.</p>
+            <small id="context-copy"></small>
+          </div>
+          <button class="nba-textlink" id="ask-season">
+            Ask about this season ↗
+          </button>
+        </div>
+      </section>
+      <footer class="nba-footer">
+        <span id="coverage">Historical NBA statistics · Kaggle v515</span
+        ><span>Answers grounded in recorded stats</span>
+      </footer>
+    </main>
+    <aside class="nba-chat" id="chat" aria-label="NBA Agent chat" hidden>
+      <div class="nba-chathead">
+        <div>
+          <strong>NBA Agent</strong
+          ><small>Your basketball research companion</small>
+        </div>
+        <div class="nba-chattools">
+          <button id="new-chat" aria-label="New conversation">＋</button
+          ><button
+            id="expand-chat"
+            aria-label="Expand chat"
+            aria-pressed="false"
+          >
+            ⤢</button
+          ><button id="close-chat" aria-label="Close chat">×</button>
+        </div>
+      </div>
+      <details class="nba-chat-history">
+        <summary>Your conversations</summary>
+        <div id="history"></div>
+        <button id="history-more" hidden>Load more</button>
+      </details>
+      <div class="nba-chatbody" id="chat-scroll">
+        <div class="nba-contextpill" id="chat-context" hidden>
+          <span id="chat-context-label"></span
+          ><button id="clear-context" aria-label="Clear player context">
             ×
           </button>
         </div>
-        <button class="new-chat" id="new-chat">
-          <span>＋</span> New conversation <span class="button-arrow">↗</span>
-        </button>
-        <label class="search"
-          ><span aria-hidden="true">⌕</span
-          ><input
-            id="search"
-            type="search"
-            placeholder="Search conversations"
-            aria-label="Search conversations"
-            maxlength="100"
-        /></label>
-        <div class="sidebar-label">
-          CONVERSATIONS
-          <button
-            class="icon-button"
-            id="refresh-history"
-            aria-label="Refresh conversations"
-          >
-            ↻
-          </button>
+        <div id="messages" aria-live="polite" aria-relevant="additions">
+          <p>What would you like to explore?</p>
         </div>
-        <nav id="history" aria-label="Previous conversations"></nav>
-        <button id="more-history" class="text-button" hidden>
-          Load more conversations
-        </button>
-        <div class="sidebar-footer">
-          <span class="status-dot" id="connection-dot"></span>
-          <div>
-            <strong id="connection-label">Connecting…</strong
-            ><span>Personal NBA workspace</span>
-          </div>
-          <button
-            class="icon-button"
-            id="check-connection"
-            aria-label="Check connection"
-          >
-            ↻
-          </button>
-        </div>
-      </aside>
-      <button
-        class="sidebar-scrim"
-        id="sidebar-scrim"
-        aria-label="Close navigation"
-        hidden
-      ></button>
-      <main class="main">
-        <header class="topbar">
-          <div class="title-row">
-            <button
-              class="icon-button"
-              id="toggle-sidebar"
-              aria-label="Toggle conversation sidebar"
-              aria-expanded="true"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-                aria-hidden="true"
-              >
-                <rect x="3" y="4" width="18" height="16" rx="3" />
-                <path d="M9 4v16" />
-              </svg>
-            </button>
-            <h1 id="session-title">New conversation</h1>
-            <span class="local-badge"><span></span> LOCAL</span>
-          </div>
-          <button
-            class="metrics-bar"
-            id="open-metrics"
-            title="View session metrics"
-          >
-            <span
-              ><span class="metric-label">Tokens</span>
-              <strong id="tokens">0</strong></span
-            ><span
-              ><span class="metric-label">Est. cost</span>
-              <strong id="cost">$0.00</strong></span
-            ><span
-              ><span class="metric-label">Model calls</span>
-              <strong id="calls">0</strong></span
-            ><span id="partial-label" class="partial" hidden
-              >Partial estimate</span
-            ><span class="metrics-arrow" aria-hidden="true">↗</span>
-          </button>
-        </header>
-        <div id="notice" class="notice" role="status" hidden></div>
-        <div class="conversation-scroll" id="conversation-scroll">
-          <section class="welcome" id="welcome" aria-labelledby="welcome-title">
-            <div class="court-mark" aria-hidden="true">
-              <svg viewBox="0 0 100 100" fill="none">
-                <rect x="12" y="12" width="76" height="76" rx="13" />
-                <path d="M12 50h76M50 12v76" />
-                <circle cx="50" cy="50" r="18" />
-                <path d="M30 12v15h40V12M30 88V73h40v15" />
-              </svg>
-            </div>
-            <div class="eyebrow">YOUR NBA RESEARCH COMPANION</div>
-            <h2 id="welcome-title">
-              The game has stories.<br /><span>Start with the numbers.</span>
-            </h2>
-            <p>
-              Explore player stats, revisit playoff runs, and put<br
-                class="desktop-break"
-              />
-              great performances side by side.
-            </p>
-            <div class="starters">
-              <button
-                data-prompt="What were Curry’s stats in the 2016 Western Conference Finals?"
-              >
-                <span class="starter-icon">↗</span
-                ><span class="starter-tag">REVISIT A SERIES</span
-                ><strong>Curry’s 2016<br />Western Conference Finals</strong
-                ><span class="starter-link"
-                  >Explore the numbers <span>↗</span></span
-                >
-              </button>
-              <button
-                data-prompt="Compare Nikola Jokic and Joel Embiid in the 2021 playoffs."
-              >
-                <span class="starter-icon">⇄</span
-                ><span class="starter-tag">COMPARE PLAYERS</span
-                ><strong>Jokić vs. Embiid<br />in the 2021 playoffs</strong
-                ><span class="starter-link"
-                  >See how they compare <span>↗</span></span
-                >
-              </button>
-              <button
-                data-prompt="Show LeBron James’s last five regular-season games in the dataset."
-              >
-                <span class="starter-icon">≡</span
-                ><span class="starter-tag">LOOK AT GAME LOGS</span
-                ><strong>LeBron’s last five<br />regular-season games</strong
-                ><span class="starter-link"
-                  >Open the game log <span>↗</span></span
-                >
-              </button>
-            </div>
-            <div class="source-note">
-              <span class="mini-diamond">◇</span> Historical NBA data
-              <span>·</span> Answers grounded in recorded stats
-            </div>
-          </section>
-          <section
-            id="messages"
-            class="messages"
-            aria-label="Chat messages"
-            aria-live="polite"
-            aria-relevant="additions"
-          ></section>
-        </div>
-        <footer class="composer-area">
-          <form id="chat-form" class="composer">
-            <label for="question" class="sr-only"
-              >Ask about NBA player statistics</label
-            >
-            <textarea
-              id="question"
-              rows="2"
-              maxlength="2000"
-              placeholder="Ask about a player, a season, a matchup…"
-            ></textarea>
-            <div class="composer-bottom">
-              <span
-                ><span class="composer-spark">✳</span> Historical player
-                statistics</span
-              >
-              <div>
-                <span id="character-count" class="character-count"></span
-                ><button
-                  type="submit"
-                  id="send"
-                  aria-label="Send message"
-                  disabled
-                >
-                  ↑
-                </button>
-              </div>
-            </div>
-          </form>
-          <div class="composer-help">
-            <span
-              >Enter to send <span>·</span> Shift + Enter for a new line</span
-            ><span>Check the data behind each answer.</span>
-          </div>
-        </footer>
-      </main>
-    </div>
-    <dialog id="metrics-dialog" aria-labelledby="metrics-title">
-      <div class="dialog-heading">
-        <div>
-          <div class="eyebrow">THIS CONVERSATION</div>
-          <h2 id="metrics-title">Session details</h2>
-        </div>
-        <button
-          id="close-metrics"
-          class="icon-button"
-          aria-label="Close session details"
-        >
-          ×
-        </button>
+        <p id="chat-status" role="status"></p>
       </div>
-      <div id="metrics-content"></div>
-    </dialog>
+      <form class="nba-chatform" id="chat-form">
+        <textarea
+          id="question"
+          rows="2"
+          placeholder="Ask about the numbers…"
+          maxlength="1600"
+          aria-label="Chat message"
+        ></textarea
+        ><button id="send" aria-label="Send message">↑</button>
+      </form>
+      <div class="nba-privacy">
+        Chats are stored and may be reviewed to improve NBA Agent.
+      </div>
+    </aside>
+    <button
+      class="nba-launcher"
+      id="launcher"
+      aria-expanded="false"
+      aria-controls="chat"
+    >
+      <img src="/assets/mark.svg" alt="" />Ask NBA Agent
+    </button>
   </body>
 </html>

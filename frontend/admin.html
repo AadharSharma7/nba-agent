@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>NBA Agent · Owner dashboard</title>
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css?v=2" />
+    <script type="module" src="/assets/admin.js?v=2"></script>
+  </head>
+  <body id="nba-admin">
+    <a class="skip-link" href="#admin-main">Skip to content</a>
+    <aside class="ad-sidebar">
+      <a class="ad-brand" href="/" aria-label="NBA Agent public site"
+        ><img src="/assets/mark.svg" alt="" /><span
+          >NBA <strong>Agent</strong></span
+        ></a
+      >
+      <div id="admin-navigation" hidden>
+        <div class="ad-workspace">Owner workspace</div>
+        <nav class="ad-nav" aria-label="Dashboard navigation">
+          <button data-page="overview" aria-pressed="true">◫ Overview</button
+          ><button data-page="conversations" aria-pressed="false">
+            ☷ Conversations</button
+          ><button data-page="costs" aria-pressed="false">
+            ↗ Usage & costs
+          </button>
+        </nav>
+      </div>
+      <div class="ad-owner" id="owner" hidden>
+        <span class="ad-avatar">A</span>
+        <div>
+          Owner
+          <div><button id="logout" class="ad-logout">Sign out</button></div>
+        </div>
+      </div>
+    </aside>
+    <main class="ad-main" id="admin-main">
+      <div class="ad-topline">
+        <span>NBA Agent / <span id="location">Sign in</span></span
+        ><span class="ad-private">Private dashboard</span>
+      </div>
+      <div class="notice" id="notice" role="status" hidden></div>
+      <section class="ad-login" id="login">
+        <h1>Your private workspace.</h1>
+        <p>Sign in to view conversations, analytics, and costs.</p>
+        <form id="login-form">
+          <label for="password">Owner password</label
+          ><input
+            type="password"
+            id="password"
+            autocomplete="current-password"
+            required
+            maxlength="1024"
+          /><label for="code">Authenticator code</label
+          ><input
+            id="code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxlength="6"
+            placeholder="Six-digit code"
+            required
+          /><button id="sign-in">Sign in</button>
+        </form>
+        <p id="setup-note" class="ad-info" hidden>
+          Owner access is not configured. Run
+          <code>.venv/bin/nba-agent owner-setup</code> in your local terminal,
+          then restart the server.
+        </p>
+      </section>
+      <section id="workspace" hidden>
+        <div id="listview">
+          <div class="ad-heading">
+            <div>
+              <h1 id="title">Your workspace, at a glance.</h1>
+              <p id="subtitle">
+                The conversations, questions, and costs behind NBA Agent.
+              </p>
+            </div>
+            <div class="ad-range">
+              <label for="range">Date range</label
+              ><select id="range">
+                <option value="week">Last 7 days</option>
+                <option value="today">Today</option>
+                <option value="month">Last 30 days</option>
+                <option value="all">All time</option>
+                <option value="custom">Custom range</option>
+              </select>
+            </div>
+          </div>
+          <div class="ad-custom" id="custom" hidden>
+            <label
+              >From · browser local time<input
+                type="datetime-local"
+                id="from" /></label
+            ><label
+              >To · browser local time<input
+                type="datetime-local"
+                id="to" /></label
+            ><button class="ad-link" id="apply-dates">Apply dates</button>
+          </div>
+          <div class="ad-stats" id="stats"></div>
+          <div class="ad-analytics" id="analytics">
+            <section class="ad-panel">
+              <div class="ad-panelhead">
+                <h2>Activity</h2>
+                <div class="ad-segment" aria-label="Activity measure">
+                  <button data-chart="conversations" aria-pressed="true">
+                    Chats</button
+                  ><button data-chart="cost" aria-pressed="false">Cost</button>
+                </div>
+              </div>
+              <p class="ad-small" id="chart-unit">
+                Sessions started per UTC day
+              </p>
+              <div
+                id="chart"
+                class="ad-chart"
+                aria-label="Daily activity"
+              ></div>
+            </section>
+            <section class="ad-panel">
+              <h2>Latest outcomes</h2>
+              <p class="ad-small">Last response in each conversation</p>
+              <div id="outcomes"></div>
+            </section>
+          </div>
+          <section id="conversations">
+            <div class="ad-sectionhead">
+              <h2 id="conversation-title">Recent conversations</h2>
+              <button class="ad-link" data-page="conversations" id="viewall">
+                View all conversations ↗
+              </button>
+            </div>
+            <div class="ad-filterbar">
+              <label class="ad-search"
+                ><span aria-hidden="true">⌕</span
+                ><input
+                  id="search"
+                  type="search"
+                  aria-label="Search all visible conversation messages"
+                  placeholder="Search titles or any message…"
+                  maxlength="200" /></label
+              ><select id="status" aria-label="Filter by outcome">
+                <option value="all">All outcomes</option>
+                <option value="answer">Answered</option>
+                <option value="clarification">Clarification</option>
+                <option value="unsupported">Unsupported</option>
+                <option value="refused">Refused</option>
+                <option value="error">Failed</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+            <p id="count" class="ad-count" aria-live="polite"></p>
+            <div id="rows"></div>
+            <p class="ad-small">
+              * Partial or historical metrics; only known usage is included.
+            </p>
+            <button id="more" class="ad-more" hidden>
+              Load more conversations
+            </button>
+          </section>
+          <section id="costs" hidden>
+            <h2 class="ad-costhead">Usage by model</h2>
+            <div id="model-usage"></div>
+            <p class="ad-cost-note">
+              Cached input is included in input tokens. Costs are model API
+              estimates in USD.
+            </p>
+            <div class="ad-info">
+              Unknown usage and pricing remain unavailable. Partial estimates
+              show known subtotals only. Hosting costs and provider invoices are
+              not included.
+            </div>
+          </section>
+        </div>
+        <section id="detail" hidden>
+          <button class="ad-back" id="back">← Back to conversations</button>
+          <h1 id="detail-title" class="ad-detail-title"></h1>
+          <div id="detail-meta" class="ad-detail-meta"></div>
+          <div id="detailstats" class="ad-detailstats"></div>
+          <div class="ad-tabs" aria-label="Conversation detail">
+            <button data-tab="transcript" aria-pressed="true">
+              Conversation</button
+            ><button data-tab="calls" aria-pressed="false">Model calls</button
+            ><button data-tab="tools" aria-pressed="false">
+              Tool activity
+            </button>
+          </div>
+          <section id="transcript">
+            <label class="ad-search ad-inside-search"
+              ><input
+                id="within"
+                type="search"
+                aria-label="Search within this conversation"
+                placeholder="Find in this conversation…"
+                maxlength="200"
+            /></label>
+            <p id="matches" class="ad-small" aria-live="polite"></p>
+            <div id="messages"></div>
+          </section>
+          <section id="calls" hidden>
+            <div id="call-rows"></div>
+            <p class="ad-info">
+              One row per model call, including retries and failures. Cached
+              input is part of input tokens.
+            </p>
+          </section>
+          <section id="tools" hidden></section>
+          <button id="messages-more" class="ad-more" hidden>
+            Load remaining messages</button
+          ><button id="metrics-more" class="ad-more" hidden>
+            Load more model calls
+          </button>
+        </section>
+        <footer class="ad-footer">
+          <span id="timezone"></span
+          ><span>Costs in USD · Private owner access</span>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>

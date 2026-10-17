@@ -1,7 +1,7 @@
 # NBA Agent — local prototype
 
 Python 3.12, FastAPI, PydanticAI, OpenAI and PostgreSQL. The fixed Kaggle v515
-snapshot is the sole statistical source. A browser chat interface is served by
+snapshot is the sole statistical source. A public player-browsing site and a private owner dashboard are served by
 the same local backend. No vector database, live-data provider or document
 retrieval is used.
 
@@ -25,30 +25,102 @@ Start the backend from this directory:
 .venv/bin/nba-agent serve
 ```
 
-Open [NBA Agent](http://127.0.0.1:8001/) to chat. The frontend is plain HTML, CSS
-and JavaScript served by FastAPI: no frontend build, npm install, second server,
-or CORS configuration is required. Restart an already-running backend after
-updating its Python code. Frontend asset edits are picked up on browser reload.
+Open [NBA Agent](http://127.0.0.1:8001/) to explore players, season leaders,
+season tables and game logs. The bottom-right chat widget follows you between pages;
+“Ask about this player/season” adds visible context to the next question. It shows
+answers and retrieved evidence, without model usage or internal exchanges. Player
+pages have bookmarkable URLs such as `/players/201939?season=2015&phase=playoffs`.
+Search preserves ambiguous identities as separate player results. Leaderboards use
+an explicit minimum appearance count, not an official league qualification rule.
+Statistics browsing makes no model calls. Missing values display as unavailable.
+The dataset coverage dates are visible in the footer.
 
-The UI includes searchable conversation history, follow-up chat, visible session
-token/cost/call totals, a detailed metrics dialog, and expandable statistics and
-source tables. It renders only user-visible messages, displays unknown metrics as
-unavailable, and distinguishes partial cost estimates. Historical sessions can be
-reopened through the sidebar or bookmarked with `?session=<uuid>`. Starter cards
-fill the composer; sending a question makes the normal model calls. Until a key
-is configured, chat is disabled and stored conversations remain browsable.
+The frontend is plain HTML, CSS and JavaScript served by FastAPI: no frontend build,
+npm install, second server or CORS configuration is required. Restart the backend
+after updating Python code; reload to pick up frontend edits. Static assets are
+revalidated on reload, and the public-site redesign uses versioned CSS and module
+URLs to bypass files cached by the previous interface.
 
-Open [the interactive API docs](http://127.0.0.1:8001/docs) to try requests.
-Use [the health endpoint](http://127.0.0.1:8001/health) to inspect database and model readiness.
+### Owner dashboard
 
-Add your OpenAI key to `backend/.env` and restart the backend to enable chat.
-The placeholder is deliberately recognized as unconfigured, so it is never sent
-to OpenAI. Statistics endpoints work without an API key. The configurable
-default model is `gpt-4.1-mini` for both agents; no key is stored in session logs.
+Apply migrations, enroll the owner, and start the server from the repository root:
 
-The API is for one trusted local user. Keep it bound to 127.0.0.1. It has no user
-authentication and is not a public deployment. Session IDs are not authentication.
-Cross-origin browser requests and unexpected Host headers are rejected.
+```bash
+.venv/bin/nba-agent init-db
+.venv/bin/nba-agent owner-setup
+.venv/bin/nba-agent serve
+```
+
+`owner-setup` runs only in an interactive local terminal. Choose a password of at
+least 12 characters, add the displayed time-based setup key to an authenticator,
+and confirm its six-digit code. It saves a salted scrypt password hash and the TOTP
+secret in the ignored, mode-0600 `backend/.env`, preserving other settings. Never
+paste that setup key or password into chat. Restart the server after enrollment.
+Re-running enrollment rotates owner access and invalidates existing owner cookies;
+local terminal access is the recovery path if the authenticator is lost.
+
+Open [the owner dashboard](http://127.0.0.1:8001/admin). It has a separate interface
+with overview metrics, daily activity, full-message conversation search, outcome
+filters, date/time filters, transcripts, model-call accounting and recorded tool
+activity. Sign-in requires both the password and an authenticator code. There is
+no public registration. Codes cannot be replayed; owner sessions expire after eight
+hours and logout revokes them in the database. Before enrollment the dashboard
+shows setup instructions and private API access remains closed.
+
+Dashboard date filters select **sessions started** in the chosen interval; their
+metrics include all recorded activity in those sessions. Inputs and transcript
+times use the browser's timezone; the daily activity chart uses UTC. The overview
+is independent of the conversation text/outcome filters. Unknown metrics stay
+unknown and known subtotals are labeled partial. Search covers visible user and
+assistant messages, while tool activity is available separately in session detail.
+Long transcripts and model-call lists have explicit pagination.
+
+### Visitor access and local deployment
+
+Visitors need no account. A random HttpOnly, SameSite=Strict cookie establishes
+an anonymous browser identity for 30 days. Only a hash of its token is stored.
+Visitor history endpoints verify ownership on every request; session UUIDs alone
+do not grant access. Only visible messages and evidence enter public responses.
+Legacy conversations have no visitor owner and remain visible only to the owner.
+The public site and `/admin` share one local origin and backend, with distinct
+interfaces and server-enforced access. Separate hosted domains are not configured.
+
+Keep this local deployment bound to `127.0.0.1`. Allowed hosts and origins remain
+loopback-only; internet hosting, HTTPS and proxy configuration are separate work.
+Set `SECURE_COOKIES=true` when serving over HTTPS. JSON-only mutations, origin
+checks, no-store private responses, and opaque cookies protect browser boundaries.
+Owner login is limited to five attempts per direct peer per 15 minutes, plus a
+shared hourly limit. Chat allows ten requests per minute and sixty per hour per
+direct peer, plus a configurable shared daily request limit. Forwarded IP headers
+are not trusted. These fixed-window limits persist across server restarts.
+
+`CHAT_DAILY_BUDGET_USD` is a **known model-cost cutoff**, not an invoice guarantee:
+a request already admitted can cross it, and a crash may leave provider usage
+unrecorded. Budget checks and HTTP chat processing are serialized in the single
+worker. New requests stop when the UTC-day known spend reaches the cutoff or a
+real provider call has unknown pricing. Test/function model providers are excluded
+from the cutoff, but remain in the accounting dashboard. Use provider-level billing
+controls as well for a hard account budget. `CHAT_DAILY_REQUEST_LIMIT` defaults to
+500 and the cost cutoff to $5. Direct local CLI/service use is outside HTTP quotas.
+
+Add your OpenAI key to `backend/.env` and restart to enable chat. Until configured,
+statistics browsing and the dashboard still work. The default model remains
+`gpt-4.1-mini` for both agents. No API key is sent to the browser.
+
+Open [the API docs](http://127.0.0.1:8001/docs) for typed request/response schemas,
+or [health](http://127.0.0.1:8001/health) for dataset and chat readiness.
+
+### Player browsing API
+
+- `GET /v1/browse`: available season start years and source coverage.
+- `GET /v1/players?q=Curry&limit=12&offset=0`: player identities and recorded career range.
+- `GET /v1/players/201939?phase=regular`: season rows, totals, per-game values and shooting percentages.
+- `GET /v1/players/201939/games?season_start=2015&phase=playoffs`: paginated game logs (`limit`, `offset`, `next_offset`).
+- `GET /v1/leaders?season_start=2015&category=points&minimum_games=20`: top ten by per-game points, rebounds or assists; regular season by default.
+
+All browsing queries use the restricted role in read-only transactions with bound
+parameters. Season totals/averages are unavailable when source observations are
+missing; percentages use total makes and attempts, not averaged game percentages.
 
 ## Try the data API without a model
 
@@ -118,15 +190,32 @@ message type, JSON content and timestamp. Roles are `user`, `gate`,
 `analyst`, `tool` and `application`. Tool-call IDs connect requests with
 results; there is no separate turn/request ID or `chat_turns` table.
 
-GET `/v1/sessions` returns `sessions` and `next_offset`, ordered by most recent
-activity. Each item has `id`, `title` (the first visible user message, shortened to
-120 characters), `created_at`, and `last_activity_at`. Use `q` to search the full
-first message, `limit` (default 30, maximum 100), and `offset` to paginate.
+First `POST /v1/visitor` with `{}` to create the anonymous browser cookie. Chat
+also establishes a cookie when necessary. Preserve that cookie on subsequent
+requests (for example, use a cookie jar with curl).
 
-GET `/v1/sessions/<session-id>` returns `session` and ordered `messages`.
-The default page is 100 messages (maximum 500). Pass `limit` and
-`after_sequence` to paginate; `next_after_sequence` is null on the last page.
-In pgAdmin, sort `message_details` by `session_id, sequence_number`.
+GET `/v1/sessions` lists only that visitor's sessions, with `q`, `limit`, `offset`
+and `next_offset`. GET `/v1/sessions/<session-id>` returns `session_id` and visible
+`messages`: message UUID, ordered sequence, public role, text, evidence and date.
+It supports `limit` and `after_sequence`; `next_after_sequence` is null at the end.
+Sequence gaps are expected because internal messages are excluded. Neither endpoint
+returns usage, cost, tool exchanges or other visitors' conversations.
+
+Owner endpoints require an owner cookie established by `POST /v1/owner/login`
+with `password` and `code`. `GET /v1/owner` reports configured/authenticated status,
+and `POST /v1/owner/logout` revokes the current login. Owner reads:
+
+- `GET /v1/admin/overview`: aggregate metrics, UTC activity and usage by model.
+- `GET /v1/admin/sessions`: full-message `q`, `status`, timezone-aware `date_from`
+  and `date_to`, `limit`, `offset`, total match count and a matching snippet.
+- `GET /v1/admin/sessions/<session-id>`: session summary and ordered internal/visible
+  messages, with `limit` and `after_sequence` pagination. Add `q` to search the
+  entire conversation, including messages beyond the first page.
+- `GET /v1/admin/sessions/<session-id>/metrics`: per-call accounting, with `limit`
+  and `offset` pagination.
+
+The compatibility `/v1/sessions/<session-id>/metrics` URL also requires owner
+login. Attempts to access private metrics anonymously are rejected.
 
 For new calls, `model_metrics` stores one row per model request, including
 validation retries, failures and cancellations. Each row references the existing
@@ -143,10 +232,10 @@ Session totals summarize persisted model calls, not duplicate message-usage
 summaries. Model-call count includes failed attempts, so it can exceed the chat
 response's `model_calls` count of responses processed by PydanticAI.
 
-GET `/v1/sessions/<session-id>/metrics` returns `session_id`, `metrics` and
+GET `/v1/admin/sessions/<session-id>/metrics` returns `session_id`, `metrics` and
 `next_offset`. Records are ordered by call start time and ID. Use `limit`
 (default 100, maximum 500) and `offset` (default 0) to paginate; `next_offset` is
-null on the last page. The existing session endpoint includes totals in `session`.
+null on the last page. The owner session endpoint includes totals in `session`.
 USD amounts are serialized as decimal strings to preserve precision.
 
 Pricing uses PydanticAI's `ModelResponse.cost()` integration with the installed
@@ -174,7 +263,8 @@ time and any error type. Model usage is also attached to each model response
 private model reasoning and raw provider errors. The user message is committed
 before processing; agent exchanges are committed when request processing finishes.
 The most recent four completed exchanges provide follow-up context.
-Concurrent requests within a session are serialized by the single local worker.
+Concurrent requests within a session are serialized by the single local worker;
+HTTP chat additionally serializes budget checks with model processing.
 The source version, cutoff and actual computed rows are attached to answers.
 Default refusal, unsupported and unresolved-entity clarification messages are
 application-owned. Ambiguous names stop the model loop immediately.
@@ -260,6 +350,12 @@ already-running backend to load accounting and the metrics endpoint. Untouched
 older sessions have null metrics. Resuming one tracks only new activity, with
 completeness flags false because historical calls are not included.
 
+Migration 004 adds hashed browser sessions, visitor ownership, login throttling
+and TOTP replay prevention without deleting existing messages or statistics. It
+also adds indexes for ownership and date filtering. The application role can read
+statistics and write only the conversation/authentication tables and permitted
+accounting fields; setup remains the only administrative database path.
+
 ## Tests and evaluations
 
 Offline tests never make paid model requests:
@@ -272,7 +368,7 @@ NBA_TEST_DATABASE=1 .venv/bin/pytest -c backend/pyproject.toml -q
 
 Integration tests require the imported local database. They read NBA records and
 write synthetic session logs, but never mutate the imported dataset. Those synthetic
-conversations also appear in the local UI history. Tests cover
+conversations appear in the owner dashboard; they do not become another visitor’s history. Tests cover
 priority query totals, weighted percentages, participation, name ambiguity,
 parameterized injection attempts, least-privilege access, refusals, evidence
 validation, follow-up sessions, per-call pricing, session totals, accounting retries/
@@ -284,6 +380,8 @@ Frontend formatting and data-boundary tests use Node's built-in test runner
 ```bash
 node --test frontend/tests/*.test.js
 node --check frontend/assets/app.js
+node --check frontend/assets/admin.js
+node --check frontend/assets/ui.js
 ```
 
 After adding a real key, explicitly run the live evaluation suite (paid calls):
@@ -313,7 +411,11 @@ Coding-agent conventions are documented in [AGENTS.md](AGENTS.md).
 * backend/src/nba_agent/ingestion.py and migrations/: local setup and source ingestion.
 * backend/tests/: unit, database and mock-model integration tests.
 * backend/evals/: real-model evaluation cases and opt-in runner.
-* frontend/: same-origin chat interface, styling, and browser-side formatting tests.
+* backend/src/nba_agent/browse.py: read-only player search, season statistics and leaders.
+* backend/src/nba_agent/dashboard.py: owner conversation search and analytics.
+* backend/src/nba_agent/security.py: owner enrollment, authentication, cookies and rate limits.
+* backend/src/nba_agent/web_models.py: typed public and private HTTP contracts.
+* frontend/: public site, private dashboard, shared styling and browser-side tests.
 * audit/: original data audit; its recommendations predate the accepted prototype policy.
 * data/raw/: unchanged, ignored Kaggle snapshot and archive.
 

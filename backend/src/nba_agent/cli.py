@@ -8,7 +8,9 @@ from nba_agent.config import BACKEND_ROOT, Settings
 
 def main():
     parser = argparse.ArgumentParser(description="NBA prototype backend")
-    parser.add_argument("command", choices=["setup-env", "init-db", "ingest", "serve", "stats"])
+    parser.add_argument(
+        "command", choices=["setup-env", "init-db", "ingest", "serve", "stats", "owner-setup"]
+    )
     parser.add_argument("--query", help="JSON StatsQuery for stats command")
     args = parser.parse_args()
     if args.command == "setup-env":
@@ -20,6 +22,11 @@ def main():
             with os.fdopen(fd, "w") as output:
                 output.write((BACKEND_ROOT / ".example.env").read_text())
             print("Created backend/.env with placeholders. Add OPENAI_API_KEY locally for chat.")
+        return
+    if args.command == "owner-setup":
+        from nba_agent.security import setup_owner
+
+        setup_owner(BACKEND_ROOT / ".env")
         return
     settings = Settings()
     if args.command == "init-db":

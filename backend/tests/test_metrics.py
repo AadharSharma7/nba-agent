@@ -290,11 +290,13 @@ async def test_metrics_permissions_preserve_restricted_application_role(pool):
 
 
 @pytest.mark.integration
-def test_metrics_http_pagination_and_decimal_cost():
+def test_metrics_http_pagination_and_decimal_cost(unmetered_http, owner_access):
     settings = Settings()
-    with TestClient(create_app(settings, build_agents(settings, gate(), analyst()))) as client:
+    with TestClient(
+        owner_access(create_app(settings, build_agents(settings, gate(), analyst())))
+    ) as client:
         result = client.post("/v1/chat", json={"message": "Explain NBA rules"}).json()
-        url = f"/v1/sessions/{result['session_id']}"
+        url = f"/v1/admin/sessions/{result['session_id']}"
         session = client.get(url).json()["session"]
         assert Decimal(session["estimated_cost_usd"]) == Decimal("0.003")
         assert session["total_tokens"] == 330

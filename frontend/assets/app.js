@@ -1,435 +1,505 @@
 import {
-  number,
-  money,
-  scope,
-  stat,
-  visibleMessages,
-  safeSource,
-} from "./format.js";
-
+  el,
+  button,
+  request,
+  table,
+  seasonLabel,
+  phaseLabel,
+  debounce,
+  sortRows,
+} from "./ui.js?v=2";
+import { stat, safeSource, scope } from "./format.js?v=2";
 const $ = (id) => document.getElementById(id);
 const state = {
-  session: null,
-  id: null,
+  meta: null,
+  profile: null,
+  phase: "regular",
+  season: null,
+  unit: "average",
+  view: "seasons",
+  sort: "season_start",
+  direction: -1,
+  category: "points",
+  games: [],
+  gameOffset: null,
+  directory: [],
+  directoryOffset: null,
   history: [],
-  next: null,
+  historyOffset: null,
+  session: null,
   busy: false,
-  loading: false,
-  health: null,
-  load: 0,
-  list: 0,
-  metricsLoad: 0,
-  lastQuestion: null,
+  context: null,
 };
-function el(tag, text, className) {
-  const node = document.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
+let routeVersion = 0,
+  leaderVersion = 0,
+  searchVersion = 0,
+  directoryVersion = 0;
+try {
+  state.session = localStorage.getItem("nba-session");
+} catch {
+  /* Storage may be disabled. */
 }
-function button(text, action, className = "text-button") {
-  const node = el("button", text, className);
-  node.type = "button";
-  node.addEventListener("click", action);
-  return node;
+const report = (error) => {
+  $("notice").textContent = error.message;
+  $("notice").hidden = false;
+};
+function playerLink(player) {
+  const link = el("a", player.name);
+  link.href = `/players/${player.id}`;
+  link.dataset.route = "";
+  return link;
 }
-async function api(path, options = {}) {
-  const response = await fetch(path, {
-    ...options,
-    headers: { "Content-Type": "application/json", ...options.headers },
-  });
-  if (!response.ok) {
-    let detail;
-    try {
-      detail = (await response.json()).detail;
-    } catch {
-      /* Fall back to a safe status message. */
-    }
-    throw new Error(
-      typeof detail === "string"
-        ? detail
-        : `Request failed (${response.status}). Please try again.`,
-    );
+function navigate(path) {
+  history.pushState(null, "", path);
+  route().catch(report);
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+document.addEventListener("click", (event) => {
+  const link = event.target.closest("a[data-route]");
+  if (link && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+    event.preventDefault();
+    navigate(link.getAttribute("href"));
   }
-  return response.json();
-}
-function notice(text = "") {
-  $("notice").textContent = text;
-  $("notice").hidden = !text;
-}
-function updateSend() {
-  $("send").disabled =
-    state.busy ||
-    state.loading ||
-    !$("question").value.trim() ||
-    !state.health?.llm_configured ||
-    state.health?.status !== "ok";
-  $("question").disabled = state.busy || state.loading;
-  $("new-chat").disabled = state.busy;
-  $("character-count").textContent =
-    $("question").value.length > 1600
-      ? `${$("question").value.length}/2,000`
-      : "";
-  document.querySelectorAll(".history-entry,[data-prompt]").forEach((node) => {
-    node.disabled = state.busy;
-  });
-}
-function updateMetrics() {
-  const session = state.session;
-  const hasSession = Boolean(state.id);
-  $("tokens").textContent = number(hasSession ? session?.total_tokens : 0);
-  $("cost").textContent = money(hasSession ? session?.estimated_cost_usd : 0);
-  $("calls").textContent = number(hasSession ? session?.model_call_count : 0);
-  $("partial-label").hidden =
-    !hasSession ||
-    !session ||
-    (session.cost_complete !== false && session.usage_complete !== false);
-}
-async function checkHealth() {
-  try {
-    state.health = await api("/health");
-    const ready = state.health.status === "ok" && state.health.llm_configured;
-    $("connection-label").textContent = ready
-      ? "Connected locally"
-      : state.health.status !== "ok"
-        ? "Dataset not ready"
-        : "API key needed";
-    $("connection-dot").className = `status-dot ${ready ? "ready" : "offline"}`;
-    if (!ready)
-      notice(
-        state.health.status !== "ok"
-          ? "The NBA dataset needs to be imported before you can chat."
-          : "Add your OpenAI API key to backend/.env and restart the backend to enable chat. You can still browse past conversations.",
-      );
-    else notice();
-  } catch {
-    state.health = null;
-    $("connection-label").textContent = "Backend unavailable";
-    $("connection-dot").className = "status-dot offline";
-    notice(
-      "Cannot connect to the local backend. Start it, then use the connection refresh button.",
+});
+window.addEventListener("popstate", () => route().catch(report));
+function setChoices(selector, key, value) {
+  document
+    .querySelectorAll(`[${selector}]`)
+    .forEach((node) =>
+      node.setAttribute("aria-pressed", String(node.dataset[key] === value)),
     );
-  }
-  updateSend();
 }
-function renderHistory() {
-  const container = $("history");
-  container.replaceChildren();
-  if (!state.history.length)
-    container.append(
-      el(
-        "p",
-        $("search").value
-          ? "No matching conversations."
-          : "Your conversations will appear here.",
-        "history-empty",
-      ),
+async function route() {
+  const version = ++routeVersion;
+  $("notice").hidden = true;
+  const match = location.pathname.match(/^\/players\/(\d+)$/),
+    directory = location.pathname === "/players";
+  $("home").hidden = Boolean(match) || directory;
+  $("directory").hidden = !directory;
+  $("player").hidden = !match;
+  if (match) {
+    const params = new URLSearchParams(location.search);
+    state.phase = params.get("phase") === "playoffs" ? "playoffs" : "regular";
+    state.season = Number(params.get("season")) || null;
+    $("player-name").textContent = "Loading player…";
+    $("summary").replaceChildren();
+    $("player-stats").replaceChildren();
+    $("ask-player").disabled = true;
+    $("ask-season").disabled = true;
+    const profile = await request(
+      `/v1/players/${match[1]}?phase=${state.phase}`,
     );
-  for (const session of state.history) {
-    const entry = button(
-      session.title,
-      () => openSession(session.id),
-      "history-entry" + (session.id === state.id ? " active" : ""),
+    if (version !== routeVersion) return;
+    state.profile = profile;
+    if (!profile.seasons.some((row) => row.season_start === state.season))
+      state.season = profile.seasons[0]?.season_start ?? null;
+    state.view = "seasons";
+    state.games = [];
+    state.sort = "season_start";
+    state.direction = -1;
+    document.title = `${profile.player.name} · NBA Agent`;
+    $("player-name").textContent = profile.player.name;
+    $("player-crumb").textContent = profile.player.name;
+    $("season").replaceChildren(
+      ...profile.seasons.map((row) => {
+        const option = el("option", seasonLabel(row.season_start));
+        option.value = row.season_start;
+        return option;
+      }),
     );
-    entry.title = session.title;
-    entry.dataset.sessionId = session.id;
-    if (session.id === state.id) entry.setAttribute("aria-current", "page");
-    container.append(entry);
-  }
-  $("more-history").hidden = state.next == null;
-  updateSend();
-}
-async function loadHistory(more = false) {
-  const sequence = ++state.list;
-  $("more-history").disabled = true;
-  try {
-    const result = await api(
-      `/v1/sessions?limit=30&offset=${more ? (state.next ?? 0) : 0}&q=${encodeURIComponent($("search").value.trim())}`,
-    );
-    if (sequence !== state.list) return;
-    state.history = more
-      ? [
-          ...state.history,
-          ...result.sessions.filter(
-            (s) => !state.history.some((existing) => existing.id === s.id),
-          ),
-        ]
-      : result.sessions;
-    state.next = result.next_offset;
-    renderHistory();
-  } catch {
-    if (sequence === state.list) {
-      $("history").replaceChildren(
-        el(
-          "p",
-          "Could not load conversations. Use refresh to try again.",
-          "load-error",
-        ),
-      );
-    }
-  } finally {
-    if (sequence === state.list) $("more-history").disabled = false;
+    $("ask-player").disabled = false;
+    $("ask-season").disabled = state.season == null;
+    renderProfile();
+  } else if (directory) {
+    document.title = "Players · NBA Agent";
+    await loadDirectory(false);
+  } else {
+    document.title = "NBA Agent · The numbers behind the game";
+    if (state.meta) await loadLeaders();
   }
 }
-function setSessionUrl(id) {
+function updatePlayerURL() {
   const url = new URL(location.href);
-  if (id) url.searchParams.set("session", id);
-  else url.searchParams.delete("session");
+  url.searchParams.set("phase", state.phase);
+  if (state.season != null) url.searchParams.set("season", state.season);
   history.replaceState(null, "", url);
 }
-function syncSidebar() {
-  const mobile = innerWidth <= 760;
-  const open = mobile
-    ? document.body.classList.contains("sidebar-open")
-    : !document.body.classList.contains("sidebar-collapsed");
-  $("sidebar").inert = !open;
-  document.querySelector(".main").inert = mobile && open;
-  $("sidebar-scrim").hidden = !(mobile && open);
-  $("toggle-sidebar").setAttribute("aria-expanded", String(open));
-}
-function closeSidebar() {
-  const wasOpen = document.body.classList.contains("sidebar-open");
-  document.body.classList.remove("sidebar-open");
-  syncSidebar();
-  if (wasOpen) $("toggle-sidebar").focus();
-}
-function newChat() {
-  if (state.busy) return;
-  ++state.load;
-  ++state.metricsLoad;
-  state.id = null;
-  state.session = null;
-  state.loading = false;
-  state.lastQuestion = null;
-  setSessionUrl(null);
-  $("session-title").textContent = "New conversation";
-  $("messages").replaceChildren();
-  $("welcome").hidden = false;
-  $("question").value = "";
-  updateMetrics();
-  renderHistory();
-  closeSidebar();
-  updateSend();
-  $("question").focus();
-}
-async function sessionData(id) {
-  let sequence = 0,
-    messages = [],
-    session;
-  do {
-    const page = await api(
-      `/v1/sessions/${encodeURIComponent(id)}?limit=500&after_sequence=${sequence}`,
-    );
-    session = page.session;
-    messages.push(...page.messages);
-    sequence = page.next_after_sequence;
-  } while (sequence != null);
-  return { session, messages: visibleMessages(messages) };
-}
-async function openSession(id) {
-  if (state.busy) return;
-  const token = ++state.load;
-  state.loading = true;
-  state.id = id;
-  state.session = null;
-  updateMetrics();
-  updateSend();
-  closeSidebar();
-  renderHistory();
-  $("welcome").hidden = true;
-  $("messages").replaceChildren(
-    el("p", "Loading conversation…", "loading-history"),
-  );
-  try {
-    const data = await sessionData(id);
-    if (token !== state.load) return;
-    state.session = data.session;
-    const first = data.messages.find((m) => m.role === "user");
-    $("session-title").textContent = first?.content?.message || "Conversation";
-    $("messages").replaceChildren();
-    for (const message of data.messages) {
-      if (message.role === "user") {
-        renderUser(message.content.message);
-        state.lastQuestion = message.content.message;
-      } else renderAnswer(message.content, state.lastQuestion);
-    }
-    setSessionUrl(id);
-    updateMetrics();
-    scrollBottom();
-  } catch (error) {
-    if (token !== state.load) return;
-    const box = el("div", null, "load-error");
-    box.append(
-      el("p", error.message),
-      button("Try loading again", () => openSession(id)),
-    );
-    $("messages").replaceChildren(box);
-    $("session-title").textContent = "Conversation unavailable";
-  } finally {
-    if (token === state.load) {
-      state.loading = false;
-      updateSend();
-    }
-  }
-}
-function renderUser(text) {
-  const article = el("article", null, "message user");
-  article.append(el("div", text, "user-bubble"));
-  $("messages").append(article);
-}
-function prose(text) {
-  const node = el("div", null, "answer-text");
-  // Render only bold spans; everything else remains text, including untrusted HTML.
-  String(text || "")
-    .split(/(\*\*[^*]+\*\*)/g)
-    .forEach((part) =>
-      node.append(
-        part.startsWith("**") && part.endsWith("**")
-          ? el("strong", part.slice(2, -2))
-          : document.createTextNode(part),
-      ),
-    );
-  return node;
-}
-function table(headers, rows) {
-  const wrapper = el("div", null, "table-scroll");
-  wrapper.tabIndex = 0;
-  wrapper.setAttribute("role", "region");
-  wrapper.setAttribute(
-    "aria-label",
-    "Statistics table; scroll horizontally for more columns",
-  );
-  const table = el("table"),
-    head = el("thead"),
-    row = el("tr");
-  headers.forEach((label) => {
-    const th = el("th", label);
-    th.scope = "col";
-    row.append(th);
-  });
-  head.append(row);
-  table.append(head);
-  const body = el("tbody");
-  rows.forEach((values) => {
-    const tr = el("tr");
-    values.forEach((value) => tr.append(el("td", value)));
-    body.append(tr);
-  });
-  table.append(body);
-  wrapper.append(table);
-  return wrapper;
-}
-function renderEvidence(data) {
-  const container = el("section", null, "evidence");
-  container.append(el("div", scope(data.query), "scope"));
-  const rows = data.rows || [],
-    group = data.query?.group_by || "player";
-  if (rows.length === 1 && group === "player") {
-    const row = rows[0],
-      cards = el("div", null, "stat-cards");
-    for (const [label, value] of [
-      ["GAMES", row.games],
-      ["POINTS / GAME", row.ppg],
-      ["REBOUNDS / GAME", row.rpg],
-      ["ASSISTS / GAME", row.apg],
-    ]) {
-      const card = el("div", null, "stat-card");
-      card.append(el("strong", stat(value)), el("span", label));
-      cards.append(card);
-    }
-    container.append(cards);
-  } else if (rows.length > 1 && group === "player") {
-    container.append(
-      table(
-        ["Statistic", ...rows.map((row) => row.player_name)],
-        [
-          ["Games", "games"],
-          ["Points / game", "ppg"],
-          ["Rebounds / game", "rpg"],
-          ["Assists / game", "apg"],
-          ["FG %", "fg_pct"],
-        ].map(([label, key]) => [label, ...rows.map((row) => stat(row[key]))]),
-      ),
-    );
-  }
-  if (data.players_without_returned_rows?.length)
-    container.append(
-      el(
-        "p",
-        `No returned rows for ${data.players_without_returned_rows.map((p) => p.name).join(", ")}.`,
-        "source-line",
-      ),
-    );
-  const details = el("details", null, "data-details");
-  details.append(
+function renderProfile() {
+  const p = state.profile;
+  if (!p) return;
+  const row = p.seasons.find((r) => r.season_start === state.season),
+    average = state.unit === "average";
+  $("season").value = state.season;
+  $("season").disabled = !p.seasons.length;
+  $("player-meta").textContent = row
+    ? `${row.teams} · ${seasonLabel(row.season_start)}`
+    : "No recorded appearances for this competition.";
+  $("summary").replaceChildren();
+  const period = el("div", null, "nba-period");
+  period.append(
+    el("small", "Selected season"),
+    el("strong", row ? seasonLabel(row.season_start) : "No data"),
     el(
-      "summary",
-      `View data & source${rows.length ? ` · ${rows.length} ${rows.length === 1 ? "row" : "rows"}` : ""}`,
+      "span",
+      `${phaseLabel(state.phase)} · ${average ? "Per game" : "Totals"}`,
     ),
   );
-  if (data.truncated)
-    details.append(
-      el(
-        "p",
-        "This result is limited. Narrow your question to see a more specific set of records.",
-        "source-line",
+  $("summary").append(period);
+  for (const [label, key] of [
+    ["Games", "games"],
+    ["Points", average ? "ppg" : "points"],
+    ["Rebounds", average ? "rpg" : "rebounds"],
+    ["Assists", average ? "apg" : "assists"],
+  ]) {
+    const item = el("div");
+    item.append(el("small", label), el("strong", stat(row?.[key])));
+    $("summary").append(item);
+  }
+  setChoices("data-phase", "phase", state.phase);
+  setChoices("data-view", "view", state.view);
+  setChoices("data-unit", "unit", state.unit);
+  $("units").hidden = state.view === "games";
+  $("games-more").hidden = true;
+  $("context-copy").textContent =
+    `Explore ${p.player.name}${row ? "’s " + seasonLabel(row.season_start) : ""} ${phaseLabel(state.phase).toLowerCase()}.`;
+  if (state.view === "seasons") {
+    const columns = [
+      ["Season", "season_start"],
+      ["Team", "teams"],
+      ["GP", "games"],
+      ["PTS", average ? "ppg" : "points"],
+      ["REB", average ? "rpg" : "rebounds"],
+      ["AST", average ? "apg" : "assists"],
+      ["FG%", "fg_pct"],
+      ["3P%", "three_pct"],
+      ["FT%", "ft_pct"],
+    ];
+    const headers = columns.map(([label, key]) =>
+      button(
+        label +
+          (state.sort === key ? (state.direction === -1 ? " ↓" : " ↑") : ""),
+        () => {
+          state.direction = state.sort === key ? -state.direction : -1;
+          state.sort = key;
+          renderProfile();
+        },
       ),
     );
-  if (rows.length) {
-    if (group === "game")
-      details.append(
-        table(
+    const rows = sortRows(p.seasons, state.sort, state.direction);
+    const view = table(
+      headers,
+      rows.map((r) =>
+        columns.map(([, key]) =>
+          key === "season_start"
+            ? button(seasonLabel(r[key]), () => selectSeason(r.season_start))
+            : key === "teams"
+              ? r[key]
+              : stat(r[key]),
+        ),
+      ),
+    );
+    view.querySelectorAll("tbody tr").forEach((tr, i) => {
+      if (rows[i].season_start === state.season)
+        tr.classList.add("nba-selected");
+    });
+    $("player-stats").replaceChildren(
+      p.seasons.length
+        ? view
+        : el("p", "No recorded appearances for this competition.", "nba-empty"),
+    );
+  } else renderGames();
+}
+async function selectSeason(year) {
+  state.season = Number(year);
+  updatePlayerURL();
+  renderProfile();
+  if (state.view === "games") await loadGames(false).catch(report);
+}
+async function loadGames(append) {
+  if (state.season == null) {
+    state.games = [];
+    renderGames();
+    return;
+  }
+  const version = routeVersion,
+    season = state.season,
+    phase = state.phase,
+    offset = append ? state.gameOffset : 0;
+  if (append && offset == null) return;
+  if (!append) {
+    state.games = [];
+    state.gameOffset = null;
+    $("player-stats").replaceChildren(
+      el("p", "Loading game logs…", "nba-empty"),
+    );
+    $("games-more").hidden = true;
+  }
+  $("games-more").disabled = true;
+  try {
+    const data = await request(
+      `/v1/players/${state.profile.player.id}/games?season_start=${season}&phase=${phase}&offset=${offset}`,
+    );
+    if (
+      version !== routeVersion ||
+      season !== state.season ||
+      phase !== state.phase
+    )
+      return;
+    state.games = append ? [...state.games, ...data.games] : data.games;
+    state.gameOffset = data.next_offset;
+    renderGames();
+  } finally {
+    $("games-more").disabled = false;
+  }
+}
+function renderGames() {
+  if (state.view !== "games") return;
+  $("player-stats").replaceChildren(
+    state.games.length
+      ? table(
           [
             "Date",
-            "Player",
+            "Team",
             "Opponent",
-            "MIN",
+            "Result",
             "PTS",
             "REB",
             "AST",
-            "STL",
-            "BLK",
-            "TOV",
+            "FG",
+            "3P",
           ],
-          rows.map((r) => [
+          state.games.map((r) => [
             r.game_date,
-            r.player_name,
+            r.team,
             r.opponent,
-            ...[
-              "minutes",
+            r.result,
+            ...["points", "rebounds", "assists"].map((k) => stat(r[k])),
+            r.fgm == null || r.fga == null ? "—" : `${r.fgm}–${r.fga}`,
+            r.fg3m == null || r.fg3a == null ? "—" : `${r.fg3m}–${r.fg3a}`,
+          ]),
+        )
+      : el("p", "No matching game records.", "nba-empty"),
+  );
+  $("games-more").hidden = state.gameOffset == null;
+}
+async function loadLeaders() {
+  if (!$("leader-season").value) return;
+  const version = ++leaderVersion;
+  $("leaders").replaceChildren(el("p", "Loading season leaders…", "nba-empty"));
+  const data = await request(
+    `/v1/leaders?season_start=${$("leader-season").value}&category=${state.category}&minimum_games=${$("leader-min").value}`,
+  );
+  if (version !== leaderVersion) return;
+  $("leaders").replaceChildren(
+    data.leaders.length
+      ? table(
+          ["Player", "GP", "PTS", "REB", "AST", "FG%"],
+          data.leaders.map((p) => [
+            playerLink(p),
+            p.games,
+            ...["ppg", "rpg", "apg", "fg_pct"].map((k) => stat(p[k])),
+          ]),
+        )
+      : el(
+          "p",
+          "No players meet this minimum. Try fewer games or another season.",
+          "nba-empty",
+        ),
+  );
+}
+const search = debounce(async () => {
+  const version = ++searchVersion,
+    query = $("search").value.trim();
+  $("search-results").hidden = !query;
+  if (!query) return;
+  try {
+    const data = await request(
+      `/v1/players?q=${encodeURIComponent(query)}&limit=8`,
+    );
+    if (version !== searchVersion || query !== $("search").value.trim()) return;
+    $("search-results").replaceChildren(
+      ...data.players.map((p) => {
+        const result = button(
+          "",
+          () => navigate(`/players/${p.id}`),
+          "nba-result",
+        );
+        result.append(
+          el("span", p.name),
+          el(
+            "small",
+            `${seasonLabel(p.first_season)} to ${seasonLabel(p.last_season)}`,
+          ),
+        );
+        return result;
+      }),
+    );
+    if (!data.players.length)
+      $("search-results").append(el("p", "No matching players.", "nba-empty"));
+  } catch (error) {
+    report(error);
+  }
+});
+async function loadDirectory(append) {
+  const version = ++directoryVersion,
+    query = $("directory-search").value.trim(),
+    offset = append ? state.directoryOffset : 0;
+  if (append && offset == null) return;
+  $("directory-more").disabled = true;
+  try {
+    const data = await request(
+      `/v1/players?q=${encodeURIComponent(query)}&limit=30&offset=${offset}`,
+    );
+    if (version !== directoryVersion) return;
+    state.directory = append
+      ? [...state.directory, ...data.players]
+      : data.players;
+    state.directoryOffset = data.next_offset;
+    $("directory-results").replaceChildren(
+      state.directory.length
+        ? table(
+            ["Player", "First season", "Last recorded season"],
+            state.directory.map((p) => [
+              playerLink(p),
+              seasonLabel(p.first_season),
+              seasonLabel(p.last_season),
+            ]),
+          )
+        : el("p", "No matching players.", "nba-empty"),
+    );
+    $("directory-more").hidden = data.next_offset == null;
+  } finally {
+    $("directory-more").disabled = false;
+  }
+}
+$("search").addEventListener("input", search);
+$("search").addEventListener("keydown", (e) => {
+  if (e.key === "Escape") $("search-results").hidden = true;
+  if (e.key === "Enter") {
+    $("search-results").querySelector("button")?.click();
+  }
+});
+$("directory-search").addEventListener(
+  "input",
+  debounce(() => loadDirectory(false).catch(report)),
+);
+$("directory-more").onclick = () => loadDirectory(true).catch(report);
+$("leader-season").onchange = () => loadLeaders().catch(report);
+$("leader-min").onchange = () => loadLeaders().catch(report);
+document.querySelectorAll("[data-category]").forEach(
+  (b) =>
+    (b.onclick = () => {
+      state.category = b.dataset.category;
+      setChoices("data-category", "category", state.category);
+      loadLeaders().catch(report);
+    }),
+);
+document
+  .querySelectorAll("[data-phase]")
+  .forEach(
+    (b) =>
+      (b.onclick = () =>
+        navigate(
+          `/players/${state.profile.player.id}?phase=${b.dataset.phase}&season=${state.season ?? ""}`,
+        )),
+  );
+document.querySelectorAll("[data-unit]").forEach(
+  (b) =>
+    (b.onclick = () => {
+      state.unit = b.dataset.unit;
+      renderProfile();
+    }),
+);
+document.querySelectorAll("[data-view]").forEach(
+  (b) =>
+    (b.onclick = () => {
+      state.view = b.dataset.view;
+      renderProfile();
+      if (state.view === "games") loadGames(false).catch(report);
+    }),
+);
+$("season").onchange = (e) => selectSeason(e.target.value);
+$("games-more").onclick = () => loadGames(true).catch(report);
+function storeSession(id) {
+  state.session = id;
+  try {
+    if (id) localStorage.setItem("nba-session", id);
+    else localStorage.removeItem("nba-session");
+  } catch {
+    /* Browser session remains usable without storage. */
+  }
+}
+let visitorReady = null,
+  chatLoaded = false;
+async function ensureVisitor() {
+  if (!visitorReady)
+    visitorReady = request("/v1/visitor", { method: "POST", body: "{}" }).catch(
+      (e) => {
+        visitorReady = null;
+        throw e;
+      },
+    );
+  return visitorReady;
+}
+async function openChat(context) {
+  $("chat").hidden = false;
+  $("launcher").setAttribute("aria-expanded", "true");
+  if (context) {
+    state.context = context;
+    renderContext();
+  }
+  $("question").focus();
+  if (!chatLoaded) {
+    chatLoaded = true;
+    try {
+      await ensureVisitor();
+      await loadHistory(false);
+      if (state.session) await openSession(state.session);
+    } catch (e) {
+      $("chat-status").textContent = e.message;
+      chatLoaded = false;
+    }
+  }
+}
+function renderContext() {
+  $("chat-context").hidden = !state.context;
+  $("chat-context-label").textContent = state.context || "";
+}
+function closeChat() {
+  $("chat").hidden = true;
+  $("launcher").setAttribute("aria-expanded", "false");
+  $("launcher").focus();
+}
+function userMessage(text) {
+  $("messages").append(el("div", text, "chat-user"));
+}
+function assistantMessage(text, data = []) {
+  const article = el("article");
+  article.append(
+    el("div", "NBA Agent", "chat-label"),
+    el("div", text, "chat-text"),
+  );
+  for (const result of data) {
+    const details = el("details");
+    details.append(
+      el("summary", "View data & source"),
+      el("p", scope(result.query), "source-line"),
+    );
+    const rows = result.rows || [];
+    if (rows.length) {
+      const keys =
+        result.query?.group_by === "game"
+          ? [
+              "game_date",
+              "player_name",
+              "opponent",
               "points",
               "rebounds",
               "assists",
-              "steals",
-              "blocks",
-              "turnovers",
-            ].map((k) => stat(r[k])),
-          ]),
-        ),
-      );
-    else
-      details.append(
-        table(
-          [
-            "Player",
-            ...(group === "season" ? ["Season"] : []),
-            "GP",
-            "PTS",
-            "REB",
-            "AST",
-            "PPG",
-            "RPG",
-            "APG",
-            "FG %",
-            "3P %",
-            "FT %",
-          ],
-          rows.map((r) => [
-            r.player_name,
-            ...(group === "season"
-              ? [`${r.season_start}–${String(r.season_start + 1).slice(-2)}`]
-              : []),
-            ...[
+            ]
+          : [
+              "player_name",
+              ...(result.query?.group_by === "season" ? ["season_start"] : []),
               "games",
               "points",
               "rebounds",
@@ -437,361 +507,205 @@ function renderEvidence(data) {
               "ppg",
               "rpg",
               "apg",
-              "fg_pct",
-              "three_pct",
-              "ft_pct",
-            ].map((k) => stat(r[k])),
-          ]),
+            ];
+      details.append(
+        table(
+          keys.map((k) => k.replaceAll("_", " ")),
+          rows.map((r) => keys.map((k) => r[k] ?? "—")),
         ),
       );
-  } else details.append(el("p", "No matching statistics were returned."));
-  const source = el("p", null, "source-line");
-  const url = safeSource(data.source?.source_url);
-  if (url) {
-    const link = el(
-      "a",
-      `Kaggle · version ${data.source.version ?? "unknown"}`,
-    );
-    link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    source.append(link);
-  } else
-    source.append(document.createTextNode("Kaggle historical NBA dataset"));
-  if (data.source?.max_game_date)
-    source.append(
-      document.createTextNode(` · Data through ${data.source.max_game_date}`),
-    );
-  source.append(
-    el("br"),
-    document.createTextNode(
-      "— means unavailable. Shooting percentages use total makes ÷ total attempts.",
-    ),
-  );
-  details.append(source);
-  container.append(details);
-  return container;
-}
-function renderAnswer(response, question) {
-  const article = el("article", null, "message assistant"),
-    label = el("div", null, "assistant-label"),
-    mark = el("img");
-  mark.src = "/assets/mark.svg";
-  mark.alt = "";
-  label.append(mark, document.createTextNode("NBA Agent"));
-  const statusLabels = {
-    clarification: "A quick clarification",
-    unsupported: "Outside current coverage",
-    refused: "NBA questions only",
-    error: "Could not complete",
-  };
-  if (statusLabels[response.status])
-    label.append(el("span", statusLabels[response.status], "status-label"));
-  article.append(label, prose(response.answer));
-  (response.data || []).forEach((data) => article.append(renderEvidence(data)));
-  if (response.status === "error" && question)
-    article.append(
-      button("Ask again", () => {
-        if (!state.busy) {
-          $("question").value = question;
-          updateSend();
-          $("question").focus();
-        }
-      }),
-    );
-  $("messages").append(article);
-  return article;
-}
-function scrollBottom() {
-  requestAnimationFrame(() => {
-    $("conversation-scroll").scrollTop = $("conversation-scroll").scrollHeight;
-  });
-}
-async function send(event) {
-  event.preventDefault();
-  const message = $("question").value.trim();
-  if (
-    !message ||
-    state.busy ||
-    state.loading ||
-    !state.health?.llm_configured ||
-    state.health.status !== "ok"
-  )
-    return;
-  state.busy = true;
-  state.lastQuestion = message;
-  updateSend();
-  $("welcome").hidden = true;
-  renderUser(message);
-  $("question").value = "";
-  const waiting = el("div", null, "message pending");
-  waiting.append(
-    el("span", null, "spinner"),
-    el("span", "Working on your question…"),
-  );
-  $("messages").append(waiting);
-  scrollBottom();
-  try {
-    const response = await api("/v1/chat", {
-      method: "POST",
-      body: JSON.stringify({
-        message,
-        ...(state.id ? { session_id: state.id } : {}),
-      }),
-    });
-    waiting.remove();
-    state.id = response.session_id;
-    setSessionUrl(state.id);
-    if (!state.session) $("session-title").textContent = message;
-    renderAnswer(response, message);
-    scrollBottom();
-    try {
-      const page = await api(
-        `/v1/sessions/${encodeURIComponent(state.id)}?limit=1`,
-      );
-      state.session = page.session;
-      updateMetrics();
-    } catch {
-      notice(
-        "Your answer is ready, but the session metrics could not refresh. Reopen the conversation to refresh them.",
-      );
     }
-    if ($("metrics-dialog").open) await loadMetrics();
-    await loadHistory();
-  } catch (error) {
-    waiting.remove();
-    renderAnswer(
-      {
-        status: "error",
-        answer: `${error.message}\nIf the connection was interrupted, the request may still have completed. Check conversation history before sending it again.`,
-      },
-      message,
-    );
-    await loadHistory();
-    scrollBottom();
-  } finally {
-    state.busy = false;
-    updateSend();
-    $("question").focus();
-  }
-}
-async function loadMetrics() {
-  const token = ++state.metricsLoad,
-    sessionId = state.id;
-  const container = $("metrics-content");
-  container.replaceChildren();
-  if (!sessionId) {
-    container.append(
-      el(
-        "p",
-        "Session metrics will appear after your first question.",
-        "dialog-note",
-      ),
-    );
-    return;
-  }
-  container.append(el("p", "Loading session details…", "dialog-note"));
-  try {
-    const summary = await api(
-      `/v1/sessions/${encodeURIComponent(sessionId)}?limit=1`,
-    );
-    if (token !== state.metricsLoad) return;
-    state.session = summary.session;
-    updateMetrics();
-    let offset = 0,
-      records = [];
-    do {
-      const page = await api(
-        `/v1/sessions/${encodeURIComponent(sessionId)}/metrics?limit=500&offset=${offset}`,
-      );
-      records.push(...page.metrics);
-      offset = page.next_offset;
-      if (token !== state.metricsLoad) return;
-    } while (offset != null);
-    container.replaceChildren();
-    const grid = el("dl", null, "metric-grid");
-    const s = summary.session;
-    for (const [label, value] of [
-      ["Input tokens", number(s.input_tokens)],
-      ["Output tokens", number(s.output_tokens)],
-      ["Cached input", number(s.cached_input_tokens)],
-      ["Total tokens", number(s.total_tokens)],
-      ["Estimated cost", money(s.estimated_cost_usd)],
-      ["Model calls", number(s.model_call_count)],
-    ]) {
-      const item = el("div", null, "metric-tile");
-      item.append(el("dt", label), el("dd", value));
-      grid.append(item);
-    }
-    container.append(grid);
-    if (s.usage_complete !== true || s.cost_complete !== true)
-      container.append(
+    if (result.truncated)
+      details.append(
         el(
           "p",
-          s.metrics_started_at
-            ? "Partial estimate: some usage or pricing is unavailable. Totals include only recorded values."
-            : "Metrics were not recorded for this older session.",
-          "dialog-note",
+          "Result limited. Narrow your question to see more specific records.",
+          "source-line",
         ),
       );
-    container.append(
+    const url = safeSource(result.source?.source_url);
+    if (url) {
+      const link = el("a", "Kaggle v515");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      details.append(link);
+    }
+    details.append(
       el(
         "p",
-        "Cached tokens are included in input tokens. Costs are estimates in USD. Calls appear after each chat request finishes.",
-        "dialog-note",
+        `Data through ${result.source?.max_game_date ?? "the recorded snapshot"}`,
+        "source-line",
       ),
     );
-    const byStage = new Map();
-    for (const record of records) {
-      const stage = byStage.get(record.stage) || {
-        calls: 0,
-        cost: 0,
-        known: 0,
-        complete: true,
-      };
-      stage.calls++;
-      if (record.estimated_cost_usd != null) {
-        stage.cost += Number(record.estimated_cost_usd);
-        stage.known++;
-      } else stage.complete = false;
-      byStage.set(record.stage, stage);
-    }
-    if (records.length) {
-      container.append(
-        el("h3", "By pipeline stage", "section-caption"),
-        table(
-          ["Stage", "Calls", "Estimated cost"],
-          [...byStage].map(([name, s]) => [
-            name === "gatekeeper" ? "Gatekeeper" : "Analyst",
-            number(s.calls),
-            money(s.known ? s.cost : null) +
-              (!s.complete && s.known ? " (partial)" : ""),
-          ]),
+    article.append(details);
+  }
+  $("messages").append(article);
+}
+async function loadHistory(append) {
+  const offset = append ? state.historyOffset : 0;
+  if (append && offset == null) return;
+  const data = await request(`/v1/sessions?offset=${offset}`);
+  state.history = append ? [...state.history, ...data.sessions] : data.sessions;
+  state.historyOffset = data.next_offset;
+  $("history").replaceChildren(
+    ...state.history.map((s) =>
+      button(s.title, () =>
+        openSession(s.id).catch(
+          (e) => ($("chat-status").textContent = e.message),
         ),
+      ),
+    ),
+  );
+  if (!state.history.length)
+    $("history").append(el("p", "Your conversations will appear here."));
+  $("history-more").hidden = data.next_offset == null;
+}
+let historyLoad = 0;
+async function openSession(id) {
+  if (state.busy) return;
+  const token = ++historyLoad;
+  state.busy = true;
+  updateChatControls();
+  $("chat-status").textContent = "Loading conversation…";
+  try {
+    const messages = [];
+    let after = 0;
+    do {
+      const data = await request(
+        `/v1/sessions/${encodeURIComponent(id)}?after_sequence=${after}`,
       );
-      const questions = [...new Set(records.map((r) => r.user_message_id))];
-      container.append(
-        el("h3", "Individual model calls", "section-caption"),
-        table(
-          [
-            "Question / call",
-            "Stage",
-            "Model",
-            "Tokens",
-            "Cost",
-            "Duration",
-            "Status",
-          ],
-          records.map((r) => [
-            `${questions.indexOf(r.user_message_id) + 1} / ${r.call_sequence}`,
-            r.stage === "gatekeeper" ? "Gatekeeper" : "Analyst",
-            r.model,
-            number(r.total_tokens),
-            money(r.estimated_cost_usd),
-            `${number(r.duration_ms / 1000, 2)} s`,
-            r.status,
-          ]),
-        ),
-      );
-    } else
-      container.append(
-        el("p", "No recorded model calls in this conversation.", "dialog-note"),
-      );
-  } catch {
-    if (token === state.metricsLoad) {
-      container.replaceChildren(
-        el("p", "Could not load metrics.", "dialog-note"),
-        button("Try again", loadMetrics),
-      );
+      messages.push(...data.messages);
+      after = data.next_after_sequence;
+    } while (after != null);
+    if (token !== historyLoad) return;
+    storeSession(id);
+    $("messages").replaceChildren();
+    for (const m of messages) {
+      if (m.role === "user") userMessage(m.text);
+      else assistantMessage(m.text, m.data);
     }
+    $("chat-status").textContent = "";
+  } catch (e) {
+    if (e.status === 404 || e.status === 401) {
+      storeSession(null);
+      $("messages").replaceChildren(el("p", "Start a new conversation."));
+    }
+    throw e;
+  } finally {
+    state.busy = false;
+    updateChatControls();
   }
 }
-$("chat-form").addEventListener("submit", send);
-$("question").addEventListener("input", updateSend);
-$("question").addEventListener("keydown", (event) => {
-  if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
-    event.preventDefault();
-    if (!$("send").disabled) $("chat-form").requestSubmit();
-  }
-});
-$("new-chat").addEventListener("click", newChat);
-$("refresh-history").addEventListener("click", () => loadHistory());
-$("check-connection").addEventListener("click", checkHealth);
-$("more-history").addEventListener("click", () => loadHistory(true));
-let searchTimer;
-$("search").addEventListener("input", () => {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => loadHistory(), 250);
-});
-$("toggle-sidebar").addEventListener("click", () => {
-  if (innerWidth <= 760) {
-    document.body.classList.toggle("sidebar-open");
-    syncSidebar();
-    $("close-sidebar").focus();
-  } else {
-    document.body.classList.toggle("sidebar-collapsed");
-    syncSidebar();
-  }
-});
-window.addEventListener("resize", syncSidebar);
-$("close-sidebar").addEventListener("click", closeSidebar);
-$("sidebar-scrim").addEventListener("click", closeSidebar);
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeSidebar();
-  if (
-    event.key === "Tab" &&
-    innerWidth <= 760 &&
-    document.body.classList.contains("sidebar-open")
-  ) {
-    const focusable = [
-      ...$("sidebar").querySelectorAll("button:not([disabled]),input"),
-    ].filter((n) => n.offsetParent !== null);
-    const first = focusable[0],
-      last = focusable.at(-1);
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-});
-$("open-metrics").addEventListener("click", () => {
-  $("metrics-dialog").showModal();
-  loadMetrics();
-});
-$("close-metrics").addEventListener("click", () => $("metrics-dialog").close());
-$("metrics-dialog").addEventListener("close", () => {
-  ++state.metricsLoad;
-});
-$("metrics-dialog").addEventListener("click", (event) => {
-  if (event.target === $("metrics-dialog")) {
-    const bounds = $("metrics-dialog").getBoundingClientRect();
-    if (
-      event.clientX < bounds.left ||
-      event.clientX > bounds.right ||
-      event.clientY < bounds.top ||
-      event.clientY > bounds.bottom
-    )
-      $("metrics-dialog").close();
-  }
-});
-document.querySelectorAll("[data-prompt]").forEach((node) =>
-  node.addEventListener("click", () => {
-    $("question").value = node.dataset.prompt;
-    updateSend();
+function updateChatControls() {
+  for (const id of ["send", "new-chat", "question"])
+    $(id).disabled = state.busy;
+}
+$("launcher").onclick = () => ($("chat").hidden ? openChat() : closeChat());
+$("close-chat").onclick = closeChat;
+$("expand-chat").onclick = () => {
+  const expanded = $("chat").classList.toggle("expanded");
+  $("expand-chat").setAttribute("aria-pressed", String(expanded));
+  $("expand-chat").setAttribute(
+    "aria-label",
+    expanded ? "Collapse chat" : "Expand chat",
+  );
+};
+$("clear-context").onclick = () => {
+  state.context = null;
+  renderContext();
+};
+$("ask-player").onclick = () => openChat(state.profile?.player.name);
+$("ask-season").onclick = () =>
+  openChat(
+    `${state.profile.player.name} · ${seasonLabel(state.season)} · ${phaseLabel(state.phase)}`,
+  );
+$("new-chat").onclick = () => {
+  if (state.busy) return;
+  storeSession(null);
+  $("messages").replaceChildren(el("p", "What would you like to explore?"));
+  $("chat-status").textContent = "";
+  $("question").focus();
+};
+$("history-more").onclick = () =>
+  loadHistory(true).catch((e) => ($("chat-status").textContent = e.message));
+$("chat-form").onsubmit = async (event) => {
+  event.preventDefault();
+  const text = $("question").value.trim();
+  if (!text || state.busy) return;
+  state.busy = true;
+  updateChatControls();
+  $("chat-status").textContent = "Checking the recorded statistics…";
+  const message = state.context ? `About ${state.context}: ${text}` : text;
+  try {
+    await ensureVisitor();
+    const reply = await request("/v1/chat", {
+      method: "POST",
+      body: JSON.stringify({ message, session_id: state.session }),
+    });
+    if (!state.session) $("messages").replaceChildren();
+    storeSession(reply.session_id);
+    userMessage(message);
+    assistantMessage(reply.answer, reply.data);
+    $("question").value = "";
+    $("chat-status").textContent = "";
+    $("chat-scroll").scrollTop = $("chat-scroll").scrollHeight;
+    await loadHistory(false);
+  } catch (e) {
+    $("chat-status").textContent = e.message;
+    if (e.status === 404) storeSession(null);
+    if (e.status === 401) visitorReady = null;
+  } finally {
+    state.busy = false;
+    updateChatControls();
     $("question").focus();
-  }),
-);
-syncSidebar();
-const initial = new URL(location.href).searchParams.get("session");
-const validInitial = initial && /^[0-9a-f-]{36}$/i.test(initial);
-if (initial && !validInitial) setSessionUrl(null);
-// Start history loading before enabling input for a bookmarked conversation.
-// Capture the initial URL before user actions can replace it.
-await Promise.all([
-  validInitial ? openSession(initial) : Promise.resolve(),
-  checkHealth(),
-  loadHistory(),
-]);
+  }
+};
+$("question").onkeydown = (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    $("chat-form").requestSubmit();
+  }
+};
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("chat").hidden) closeChat();
+});
+async function start() {
+  state.meta = await request("/v1/browse");
+  $("leader-season").replaceChildren(
+    ...state.meta.seasons.map((year) => {
+      const option = el("option", seasonLabel(year));
+      option.value = year;
+      return option;
+    }),
+  );
+  $("coverage").textContent =
+    `Kaggle v515 · ${state.meta.first_game ?? "Unknown start"} to ${state.meta.last_game ?? "unknown cutoff"}`;
+  const featured = await Promise.all(
+    [201939, 201142, 201935].map((id) =>
+      request(`/v1/players/${id}`).catch(() => null),
+    ),
+  );
+  $("featured").replaceChildren(
+    ...featured.filter(Boolean).map((p) => {
+      const card = button(
+        "",
+        () => navigate(`/players/${p.player.id}`),
+        "nba-playercard",
+      );
+      card.append(
+        el("span", "EXPLORE PLAYER ↗", "nba-number"),
+        el("strong", p.player.name),
+        el(
+          "small",
+          p.seasons.length
+            ? `${seasonLabel(p.seasons.at(-1).season_start)} to ${seasonLabel(p.seasons[0].season_start)}`
+            : "Historical player",
+        ),
+      );
+      return card;
+    }),
+  );
+  await route();
+}
+start().catch(report);
